@@ -18,13 +18,13 @@ type Service struct {
 }
 
 type ServiceDependencies struct {
-	repo *repository.Repository
+	Repo *repository.Repository
 }
 
 func NewService(deps ServiceDependencies) *Service {
 	return &Service{
-		Category:    NewCategoryService(deps.repo),
-		User:        NewUserService(deps.repo),
-		Transaction: NewTransactionService(deps.repo),
+		Category:    NewCategoryService(deps.Repo),
+		User:        NewUserService(deps.Repo),
+		Transaction: NewTransactionService(deps.Repo),
 	}
 }
