@@ -19,7 +19,6 @@ func (r *RequestHandler) userSignIn(c *gin.Context) {
 }
 
 func (r *RequestHandler) userSignUp(c *gin.Context) {
-
 }
 
 func (r *RequestHandler) userRefreshAccess(c *gin.Context) {
