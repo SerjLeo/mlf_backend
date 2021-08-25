@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type UserPostgres struct {
@@ -24,10 +24,25 @@ func (r *UserPostgres) Create(user models.User) (int, error) {
 	row := r.db.QueryRow(query, user.Name, user.Email, user.Password)
 
 	if err := row.Scan(&id); err != nil {
-		fmt.Println(err.Error())
+		if strings.Contains(err.Error(), "duplicate key value") {
+			return id, models.UserAlreadyExist
+		}
 		return id, err
 	}
 
 	return id, nil
+}
 
+func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
+	var user models.User
+	query := `
+		SELECT * FROM users
+		WHERE email=$1 AND hashed_pass=$2`
+
+	err := r.db.Get(&user, query, email, passHash)
+	if strings.Contains(err.Error(), "no rows") {
+		return user, models.EmailOrPassNotMatch
+	}
+
+	return user, err
 }

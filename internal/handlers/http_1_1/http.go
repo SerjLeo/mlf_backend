@@ -13,9 +13,9 @@ func NewRequestHandler(services *services.Service) *RequestHandler {
 	return &RequestHandler{services: services}
 }
 
-func (r *RequestHandler) Init(root *gin.RouterGroup) {
+func (h *RequestHandler) Init(root *gin.RouterGroup) {
 	api := root.Group("/api")
 	{
-		r.initUserRoutes(api)
+		h.initUserRoutes(api)
 	}
 }

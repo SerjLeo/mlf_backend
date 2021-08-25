@@ -4,5 +4,7 @@ CREATE table category
     user_id     integer,
     name        varchar(50) NOT NULL UNIQUE,
     color       varchar(7)  NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (user_id)
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )

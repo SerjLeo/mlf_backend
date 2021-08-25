@@ -10,6 +10,7 @@ import (
 type User interface {
 	Create(user models.User) (string, error)
 	CreateByEmail(email string) (string, error)
+	SignIn(email, password string) (string, error)
 }
 
 type Transaction interface {
