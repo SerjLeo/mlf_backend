@@ -7,7 +7,7 @@ import (
 )
 
 type Server struct {
-	httpServer  *http.Server
+	httpServer *http.Server
 }
 
 func NewServer(port string, handler http.Handler) *Server {

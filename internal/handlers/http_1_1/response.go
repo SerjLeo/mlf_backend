@@ -2,6 +2,10 @@ package http_1_1
 
 import "github.com/gin-gonic/gin"
 
+type dataResponse struct {
+	Data interface{}
+}
+
 type errorResponse struct {
 	Error string
 }

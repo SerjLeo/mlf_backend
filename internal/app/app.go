@@ -7,27 +7,36 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/internal/repository/postgres"
 	"github.com/SerjLeo/mlf_backend/internal/services"
+	"github.com/SerjLeo/mlf_backend/pkg/auth"
+	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"log"
 )
 
 func Run(configPath string) {
 	cfg, err := config.InitConfig(configPath)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err.Error())
 		return
 	}
 
 	db, err := postgres.NewPostgresDB(cfg.Postgres)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err.Error())
 		return
+	}
+
+	tokenManager, err := auth.NewTokenManager(cfg.JWTSignKey)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	repos := repository.NewPostgresRepository(db)
 	service := services.NewService(services.ServiceDependencies{
-		Repo: repos,
+		Repo:          repos,
+		TokenManager:  tokenManager,
+		HashGenerator: password.NewSHA1Hash(cfg.HashSalt),
 	})
-	handler := handlers.NewHandler(service)
+	handler := handlers.NewHandler(service, tokenManager)
 
 	server := models.NewServer(cfg.HTTP.Port, handler.InitRoutes())
 

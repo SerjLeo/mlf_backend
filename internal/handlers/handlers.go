@@ -3,16 +3,18 @@ package handlers
 import (
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
 	"github.com/SerjLeo/mlf_backend/internal/services"
+	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Handler struct {
-	services *services.Service
+	services     *services.Service
+	tokenManager auth.TokenManager
 }
 
-func NewHandler(services *services.Service) *Handler {
-	return &Handler{services: services}
+func NewHandler(services *services.Service, tokenManager auth.TokenManager) *Handler {
+	return &Handler{services: services, tokenManager: tokenManager}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {

@@ -14,7 +14,10 @@ const (
 
 type (
 	Config struct {
-		Env      string
+		Env        string
+		JWTSignKey string
+		HashSalt   string
+
 		HTTP     HTTPConfig
 		Postgres PostgresConfig
 	}
@@ -50,7 +53,7 @@ func InitConfig(configDir string) (*Config, error) {
 		return nil, err
 	}
 
-	fmt.Printf("%+v",cfg)
+	fmt.Printf("%+v", cfg)
 
 	return &cfg, nil
 }
@@ -83,6 +86,14 @@ func populateEnv(cfg *Config) error {
 
 	if dbPass, exists := os.LookupEnv("DB_PASSWORD"); exists {
 		cfg.Postgres.Password = dbPass
+	}
+
+	if hashSalt, exists := os.LookupEnv("HASH_SALT"); exists {
+		cfg.HashSalt = hashSalt
+	}
+
+	if signKey, exists := os.LookupEnv("JWT_SIGN_KEY"); exists {
+		cfg.JWTSignKey = signKey
 	}
 
 	return nil

@@ -1,11 +1,13 @@
 package repository
 
 import (
+	"github.com/SerjLeo/mlf_backend/internal/models"
 	postgres "github.com/SerjLeo/mlf_backend/internal/repository/postgres"
 	"github.com/jmoiron/sqlx"
 )
 
 type User interface {
+	Create(user models.User) (int, error)
 }
 
 type Transaction interface {
