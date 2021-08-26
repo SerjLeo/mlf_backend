@@ -5,7 +5,11 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+
+	_ "github.com/SerjLeo/mlf_backend/docs"
 )
 
 type Handler struct {
@@ -37,6 +41,7 @@ func (h *Handler) initApi(router *gin.Engine) {
 		root.GET("/ping", func(context *gin.Context) {
 			context.String(http.StatusOK, "Hello from server")
 		})
+		root.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		httpHandler.Init(root)
 	}
 }

@@ -1,0 +1,172 @@
+basePath: /
+definitions:
+  http_1_1.dataResponse:
+    properties:
+      data:
+        type: object
+    type: object
+  http_1_1.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  http_1_1.signInInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  http_1_1.signUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  http_1_1.signUpWithEmailInput:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API for MLF application
+  license:
+    name: MIT
+  title: My Local Financier API
+  version: "1.0"
+paths:
+  /user/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: returns auth JWT
+      parameters:
+      - description: info for user's login
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http_1_1.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      summary: User sign-in with email and password
+      tags:
+      - auth
+  /user/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: creates user and returns auth JWT
+      parameters:
+      - description: data for user creation
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http_1_1.signUpInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      summary: User sign-up with name, email and password
+      tags:
+      - auth
+  /user/sign-up-with-email:
+    post:
+      consumes:
+      - application/json
+      description: creates user with email, password generates automatically and returns
+        auth JWT
+      parameters:
+      - description: email for user creation
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http_1_1.signUpWithEmailInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      summary: User sign-up with name, email and password
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

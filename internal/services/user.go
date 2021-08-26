@@ -43,14 +43,19 @@ func (s *UserService) Create(user models.User) (string, error) {
 }
 
 func (s *UserService) CreateByEmail(email string) (string, error) {
-	pass, err := generatePassword.Generate(10, 8, 2, false, false)
+	pass, err := generatePassword.Generate(10, 2, 2, false, false)
 	if err != nil {
 		return "", errors.New("error while generating password")
 	}
 
+	passHash, err := s.hashGenerator.EncodeString(pass)
+	if err != nil {
+		return "", err
+	}
+
 	user := models.User{
 		Email:    email,
-		Password: pass,
+		Password: passHash,
 	}
 
 	id, err := s.repo.User.Create(user)

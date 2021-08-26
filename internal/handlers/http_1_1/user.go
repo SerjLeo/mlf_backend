@@ -18,10 +18,21 @@ func (h *RequestHandler) initUserRoutes(api *gin.RouterGroup) {
 }
 
 type signInInput struct {
-	Email string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
+// @Summary User sign-in with email and password
+// @Tags auth
+// @Description returns auth JWT
+// @Accept  json
+// @Produce  json
+// @Param input body signInInput true "info for user's login"
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /user/sign-in [post]
 func (h *RequestHandler) userSignIn(c *gin.Context) {
 	var input signInInput
 
@@ -39,15 +50,36 @@ func (h *RequestHandler) userSignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, dataResponse{Data: token})
 }
 
-func (h *RequestHandler) userSignUp(c *gin.Context) {
-	var user models.User
+type signUpInput struct {
+	Email    string `json:"email" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
 
-	if err := c.BindJSON(&user); err != nil {
+// @Summary User sign-up with name, email and password
+// @Tags auth
+// @Description creates user and returns auth JWT
+// @Accept  json
+// @Produce  json
+// @Param input body signUpInput true "data for user creation"
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /user/sign-up [post]
+func (h *RequestHandler) userSignUp(c *gin.Context) {
+	var input signUpInput
+
+	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
-	token, err := h.services.User.Create(user)
+	token, err := h.services.User.Create(models.User{
+		Email:    input.Email,
+		Name:     input.Name,
+		Password: input.Password,
+	})
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
 		return
@@ -61,6 +93,17 @@ type signUpWithEmailInput struct {
 	Email string `json:"email" binding:"required"`
 }
 
+// @Summary User sign-up with email only
+// @Tags auth
+// @Description creates user with email, password generates automatically and returns auth JWT
+// @Accept  json
+// @Produce  json
+// @Param input body signUpWithEmailInput true "email for user creation"
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /user/sign-up-with-email [post]
 func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 	var input signUpWithEmailInput
 
