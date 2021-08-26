@@ -2,13 +2,14 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
 type TokenManager interface {
 	GenerateToken(userId int, ttl time.Duration) (string, error)
-	ParseToken(token string) (string, error)
+	ParseToken(token string) (*tokenClaims, error)
 }
 
 type Manager struct {
@@ -38,6 +39,23 @@ func (m *Manager) GenerateToken(userId int, ttl time.Duration) (string, error) {
 	return token.SignedString([]byte(m.signKey))
 }
 
-func (m *Manager) ParseToken(token string) (string, error) {
-	return "", nil
+func (m *Manager) ParseToken(token string) (*tokenClaims, error) {
+	parsedToken, err := jwt.ParseWithClaims(token, &tokenClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(m.signKey), nil
+	})
+
+	if err != nil {
+		return &tokenClaims{}, err
+	}
+
+	claims, ok := parsedToken.Claims.(*tokenClaims)
+	if !ok {
+		return &tokenClaims{}, fmt.Errorf("error while getting user claims from token")
+	}
+
+	return claims, nil
 }

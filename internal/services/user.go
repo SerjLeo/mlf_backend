@@ -6,6 +6,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
+	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	generatePassword "github.com/sethvargo/go-password/password"
 	"time"
@@ -15,14 +16,16 @@ type UserService struct {
 	repo          *repository.Repository
 	tokenManager  auth.TokenManager
 	hashGenerator password.HashGenerator
+	mailManager   email.MailManager
 }
 
 func NewUserService(
 	repo *repository.Repository,
 	tokenManager auth.TokenManager,
 	hashGenerator password.HashGenerator,
+	mailManager email.MailManager,
 ) *UserService {
-	return &UserService{repo: repo, tokenManager: tokenManager, hashGenerator: hashGenerator}
+	return &UserService{repo: repo, tokenManager: tokenManager, hashGenerator: hashGenerator, mailManager: mailManager}
 }
 
 func (s *UserService) Create(user models.User) (string, error) {
@@ -83,4 +86,21 @@ func (s *UserService) SignIn(email, password string) (string, error) {
 	fmt.Printf("%+v", user)
 
 	return s.tokenManager.GenerateToken(user.UserId, time.Hour*60)
+}
+
+func (s *UserService) CheckUserToken(token string) (int, error) {
+	claims, err := s.tokenManager.ParseToken(token)
+	if err != nil {
+		return 0, err
+	}
+
+	return claims.UserId, nil
+}
+
+func (s *UserService) SendTestEmail() error {
+	return s.mailManager.SendEmail(email.SendInput{
+		To: "sergejleontev111@gmail.com",
+		Subject: "Subject: Email from mail manager \n",
+		Body: "This is test email",
+	})
 }

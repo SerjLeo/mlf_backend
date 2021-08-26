@@ -20,6 +20,7 @@ type (
 
 		HTTP     HTTPConfig
 		Postgres PostgresConfig
+		SMTP     SMTPConfig
 	}
 
 	PostgresConfig struct {
@@ -33,6 +34,13 @@ type (
 
 	HTTPConfig struct {
 		Port string
+	}
+
+	SMTPConfig struct {
+		Host     string
+		Port     string
+		From     string
+		Password string
 	}
 )
 
@@ -94,6 +102,22 @@ func populateEnv(cfg *Config) error {
 
 	if signKey, exists := os.LookupEnv("JWT_SIGN_KEY"); exists {
 		cfg.JWTSignKey = signKey
+	}
+
+	if smtpHost, exists := os.LookupEnv("SMTP_HOST"); exists {
+		cfg.SMTP.Host = smtpHost
+	}
+
+	if smtpPort, exists := os.LookupEnv("SMTP_PORT"); exists {
+		cfg.SMTP.Port = smtpPort
+	}
+
+	if smtpPass, exists := os.LookupEnv("SMTP_PASSWORD"); exists {
+		cfg.SMTP.Password = smtpPass
+	}
+
+	if smtpFrom, exists := os.LookupEnv("SMTP_FROM"); exists {
+		cfg.SMTP.From = smtpFrom
 	}
 
 	return nil

@@ -17,5 +17,6 @@ func (h *RequestHandler) Init(root *gin.RouterGroup) {
 	api := root.Group("/api")
 	{
 		h.initAuthRoutes(api)
+		h.initCategoriesRoutes(api)
 	}
 }

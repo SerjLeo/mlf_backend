@@ -40,7 +40,7 @@ func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
 		WHERE email=$1 AND hashed_pass=$2`
 
 	err := r.db.Get(&user, query, email, passHash)
-	if strings.Contains(err.Error(), "no rows") {
+	if err != nil && strings.Contains(err.Error(), "no rows") {
 		return user, models.EmailOrPassNotMatch
 	}
 

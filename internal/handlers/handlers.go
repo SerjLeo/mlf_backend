@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
 	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
@@ -40,6 +41,17 @@ func (h *Handler) initApi(router *gin.Engine) {
 	{
 		root.GET("/ping", func(context *gin.Context) {
 			context.String(http.StatusOK, "Hello from server")
+		})
+		root.GET("/send-email", func(context *gin.Context) {
+			err := h.services.User.SendTestEmail()
+			if err != nil {
+				fmt.Println(err.Error())
+				context.JSON(http.StatusInternalServerError, map[string]interface{}{
+					"err": err.Error(),
+				})
+			}
+			return
+			context.String(http.StatusOK, "Email sent")
 		})
 		root.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		httpHandler.Init(root)

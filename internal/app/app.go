@@ -8,6 +8,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/repository/postgres"
 	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
+	"github.com/SerjLeo/mlf_backend/pkg/email/smtp"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"log"
 )
@@ -30,11 +31,17 @@ func Run(configPath string) {
 		log.Fatal(err.Error())
 	}
 
+	smtpSender, err := smtp.NewSMTPSender(cfg.SMTP.Host, cfg.SMTP.Password, cfg.SMTP.Port, cfg.SMTP.From)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	repos := repository.NewPostgresRepository(db)
 	service := services.NewService(services.ServiceDependencies{
 		Repo:          repos,
 		TokenManager:  tokenManager,
 		HashGenerator: password.NewSHA1Hash(cfg.HashSalt),
+		MailManager:   smtpSender,
 	})
 	handler := handlers.NewHandler(service, tokenManager)
 
