@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-func (h *RequestHandler) initUserRoutes(api *gin.RouterGroup) {
-	user := api.Group("/user")
+func (h *RequestHandler) initAuthRoutes(api *gin.RouterGroup) {
+	auth := api.Group("/auth")
 	{
-		user.POST("/sign-in", h.userSignIn)
-		user.POST("/sign-up", h.userSignUp)
-		user.POST("/sign-up-with-email", h.userSignUpWithEmail)
-		user.POST("/refresh", h.userRefreshAccess)
+		auth.POST("/sign-in", h.userSignIn)
+		auth.POST("/sign-up", h.userSignUp)
+		auth.POST("/sign-up-with-email", h.userSignUpWithEmail)
+		auth.POST("/refresh", h.userRefreshAccess)
 	}
 }
 
@@ -32,7 +32,7 @@ type signInInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /user/sign-in [post]
+// @Router /auth/sign-in [post]
 func (h *RequestHandler) userSignIn(c *gin.Context) {
 	var input signInInput
 
@@ -66,7 +66,7 @@ type signUpInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /user/sign-up [post]
+// @Router /auth/sign-up [post]
 func (h *RequestHandler) userSignUp(c *gin.Context) {
 	var input signUpInput
 
@@ -103,7 +103,7 @@ type signUpWithEmailInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /user/sign-up-with-email [post]
+// @Router /auth/sign-up-with-email [post]
 func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 	var input signUpWithEmailInput
 

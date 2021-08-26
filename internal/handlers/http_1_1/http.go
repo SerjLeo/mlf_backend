@@ -16,6 +16,6 @@ func NewRequestHandler(services *services.Service) *RequestHandler {
 func (h *RequestHandler) Init(root *gin.RouterGroup) {
 	api := root.Group("/api")
 	{
-		h.initUserRoutes(api)
+		h.initAuthRoutes(api)
 	}
 }
