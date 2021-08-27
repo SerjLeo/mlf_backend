@@ -7,3 +7,4 @@ postgres:
   username: "postgres"
   dbname: "mlf"
   sslmode: "disable"
+templatesPath: "./templates"

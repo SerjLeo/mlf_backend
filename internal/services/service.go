@@ -4,8 +4,10 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
+	"github.com/SerjLeo/mlf_backend/pkg/cache"
 	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
+	"github.com/SerjLeo/mlf_backend/pkg/templates"
 )
 
 type User interface {
@@ -29,16 +31,18 @@ type Service struct {
 }
 
 type ServiceDependencies struct {
-	Repo          *repository.Repository
-	TokenManager  auth.TokenManager
-	HashGenerator password.HashGenerator
-	MailManager   email.MailManager
+	Repo            *repository.Repository
+	TokenManager    auth.TokenManager
+	HashGenerator   password.HashGenerator
+	MailManager     email.MailManager
+	TemplateManager templates.TemplateManager
+	Cache           *cache.Cache
 }
 
 func NewService(deps ServiceDependencies) *Service {
 	return &Service{
 		Category:    NewCategoryService(deps.Repo),
-		User:        NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager),
+		User:        NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager, deps.TemplateManager, deps.Cache),
 		Transaction: NewTransactionService(deps.Repo),
 	}
 }

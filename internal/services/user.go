@@ -6,17 +6,21 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
+	"github.com/SerjLeo/mlf_backend/pkg/cache"
 	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
+	"github.com/SerjLeo/mlf_backend/pkg/templates"
 	generatePassword "github.com/sethvargo/go-password/password"
 	"time"
 )
 
 type UserService struct {
-	repo          *repository.Repository
-	tokenManager  auth.TokenManager
-	hashGenerator password.HashGenerator
-	mailManager   email.MailManager
+	repo            *repository.Repository
+	tokenManager    auth.TokenManager
+	hashGenerator   password.HashGenerator
+	mailManager     email.MailManager
+	templateManager templates.TemplateManager
+	cache           *cache.Cache
 }
 
 func NewUserService(
@@ -24,8 +28,17 @@ func NewUserService(
 	tokenManager auth.TokenManager,
 	hashGenerator password.HashGenerator,
 	mailManager email.MailManager,
+	templateManager templates.TemplateManager,
+	cache *cache.Cache,
 ) *UserService {
-	return &UserService{repo: repo, tokenManager: tokenManager, hashGenerator: hashGenerator, mailManager: mailManager}
+	return &UserService{
+		repo:            repo,
+		tokenManager:    tokenManager,
+		hashGenerator:   hashGenerator,
+		mailManager:     mailManager,
+		cache:           cache,
+		templateManager: templateManager,
+	}
 }
 
 func (s *UserService) Create(user models.User) (string, error) {
@@ -98,9 +111,19 @@ func (s *UserService) CheckUserToken(token string) (int, error) {
 }
 
 func (s *UserService) SendTestEmail() error {
+	body, err := s.templateManager.ExecuteTemplateToString(
+		s.cache.Templates["confirmEmail.html"],
+		templates.ConfirmEmailData{
+			Host:        "MyLocalFinancier.com",
+			ConfirmLink: "https://youtube.com",
+		})
+	if err != nil {
+		return err
+	}
+
 	return s.mailManager.SendEmail(email.SendInput{
-		To: "sergejleontev111@gmail.com",
-		Subject: "Subject: Email from mail manager \n",
-		Body: "This is test email",
+		To:      "sergejleontev111@gmail.com",
+		Subject: "Email from mail manager",
+		Body:    body,
 	})
 }

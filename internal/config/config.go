@@ -14,13 +14,13 @@ const (
 
 type (
 	Config struct {
-		Env        string
-		JWTSignKey string
-		HashSalt   string
-
-		HTTP     HTTPConfig
-		Postgres PostgresConfig
-		SMTP     SMTPConfig
+		Env           string
+		JWTSignKey    string
+		HashSalt      string
+		TemplatesPath string
+		HTTP          HTTPConfig
+		Postgres      PostgresConfig
+		SMTP          SMTPConfig
 	}
 
 	PostgresConfig struct {
