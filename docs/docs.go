@@ -26,7 +26,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/user/sign-in": {
+        "/auth/sign-in": {
             "post": {
                 "description": "returns auth JWT",
                 "consumes": [
@@ -84,7 +84,7 @@ var doc = `{
                 }
             }
         },
-        "/user/sign-up": {
+        "/auth/sign-up": {
             "post": {
                 "description": "creates user and returns auth JWT",
                 "consumes": [
@@ -142,7 +142,7 @@ var doc = `{
                 }
             }
         },
-        "/user/sign-up-with-email": {
+        "/auth/sign-up-with-email": {
             "post": {
                 "description": "creates user with email, password generates automatically and returns auth JWT",
                 "consumes": [
@@ -154,7 +154,7 @@ var doc = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "User sign-up with name, email and password",
+                "summary": "User sign-up with email only",
                 "parameters": [
                     {
                         "description": "email for user creation",
@@ -199,16 +199,136 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/category": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "returns user categories list with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Get categories list",
+                "parameters": [
+                    {
+                        "description": "pagination params and filters",
+                        "name": "input",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.metaParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.dataWithPaginationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{categoryId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "returns user's category object by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Get category by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "target category id",
+                        "name": "categoryId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.dataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/http_1_1.errorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "http_1_1.dataResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object"
-                }
-            }
+            "type": "object"
+        },
+        "http_1_1.dataWithPaginationResponse": {
+            "type": "object"
         },
         "http_1_1.errorResponse": {
             "type": "object",
@@ -217,6 +337,9 @@ var doc = `{
                     "type": "string"
                 }
             }
+        },
+        "http_1_1.metaParams": {
+            "type": "object"
         },
         "http_1_1.signInInput": {
             "type": "object",
@@ -286,7 +409,7 @@ type swaggerInfo struct {
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "localhost:8000",
-	BasePath:    "/",
+	BasePath:    "/api",
 	Schemes:     []string{},
 	Title:       "My Local Financier API",
 	Description: "API for MLF application",

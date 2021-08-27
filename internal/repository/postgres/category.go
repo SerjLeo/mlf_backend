@@ -25,3 +25,15 @@ func (r *CategoryPostgres) GetUserCategories(userId int) ([]models.Category, err
 	err := r.db.Select(&categories, query, userId)
 	return categories, err
 }
+
+func (r *CategoryPostgres) GetUserCategoryById(userId, categoryId int) (models.Category, error) {
+	query := fmt.Sprintf(`
+		SELECT * FROM %s
+		WHERE user_id=$1 AND category_id=$2
+	`, categoryTable)
+
+	category := models.Category{}
+
+	err := r.db.Get(&category, query, userId, categoryId)
+	return category, err
+}

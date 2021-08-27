@@ -1,14 +1,15 @@
-basePath: /
+basePath: /api
 definitions:
   http_1_1.dataResponse:
-    properties:
-      data:
-        type: object
+    type: object
+  http_1_1.dataWithPaginationResponse:
     type: object
   http_1_1.errorResponse:
     properties:
       error:
         type: string
+    type: object
+  http_1_1.metaParams:
     type: object
   http_1_1.signInInput:
     properties:
@@ -49,7 +50,7 @@ info:
   title: My Local Financier API
   version: "1.0"
 paths:
-  /user/sign-in:
+  /auth/sign-in:
     post:
       consumes:
       - application/json
@@ -87,7 +88,7 @@ paths:
       summary: User sign-in with email and password
       tags:
       - auth
-  /user/sign-up:
+  /auth/sign-up:
     post:
       consumes:
       - application/json
@@ -125,7 +126,7 @@ paths:
       summary: User sign-up with name, email and password
       tags:
       - auth
-  /user/sign-up-with-email:
+  /auth/sign-up-with-email:
     post:
       consumes:
       - application/json
@@ -161,9 +162,86 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/http_1_1.errorResponse'
-      summary: User sign-up with name, email and password
+      summary: User sign-up with email only
       tags:
       - auth
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: returns user categories list with pagination
+      parameters:
+      - description: pagination params and filters
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/http_1_1.metaParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataWithPaginationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get categories list
+      tags:
+      - category
+  /category/{categoryId}:
+    get:
+      consumes:
+      - application/json
+      description: returns user's category object by id
+      parameters:
+      - description: target category id
+        in: path
+        name: categoryId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get category by id
+      tags:
+      - category
 securityDefinitions:
   ApiKeyAuth:
     in: header

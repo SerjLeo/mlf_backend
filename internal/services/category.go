@@ -16,3 +16,7 @@ func NewCategoryService(repo *repository.Repository) *CategoryService {
 func (s *CategoryService) GetUserCategories(userId int) ([]models.Category, error) {
 	return s.repo.Category.GetUserCategories(userId)
 }
+
+func (s *CategoryService) GetUserCategoryById(userId, categoryId int) (models.Category, error) {
+	return s.repo.Category.GetUserCategoryById(userId, categoryId)
+}

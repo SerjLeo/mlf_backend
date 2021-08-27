@@ -11,7 +11,7 @@ const configPath = "config"
 // @license.name MIT
 
 // @host localhost:8000
-// @BasePath /
+// @BasePath /api
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
