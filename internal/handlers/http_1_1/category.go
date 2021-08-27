@@ -1,6 +1,10 @@
 package http_1_1
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
 func (h *RequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 	category := api.Group("/category", h.isUserAuthenticated)
@@ -14,7 +18,21 @@ func (h *RequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 }
 
 func (h *RequestHandler) getCategoriesList(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c,http.StatusUnauthorized,err.Error())
+		return
+	}
 
+	categories, err := h.services.Category.GetUserCategories(userId)
+	if err != nil {
+		newErrorResponse(c,http.StatusInternalServerError,fmt.Sprint("Error getting categories list:",err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: categories,
+	})
 }
 
 func (h *RequestHandler) getCategoryById(c *gin.Context) {

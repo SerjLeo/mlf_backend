@@ -22,6 +22,7 @@ type Transaction interface {
 }
 
 type Category interface {
+	GetUserCategories(userId int) ([]models.Category, error)
 }
 
 type Service struct {

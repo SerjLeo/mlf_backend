@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 	"strings"
@@ -16,10 +17,11 @@ func NewUserPostgres(db *sqlx.DB) *UserPostgres {
 
 func (r *UserPostgres) Create(user models.User) (int, error) {
 	var id int
-	query := `
-		INSERT INTO users (name, email, hashed_pass)
+	query := fmt.Sprintf(`
+		INSERT INTO %s (name, email, hashed_pass)
 		VALUES ($1, $2, $3)
-		RETURNING user_id`
+		RETURNING user_id
+	`, userTable)
 
 	row := r.db.QueryRow(query, user.Name, user.Email, user.Password)
 
@@ -35,9 +37,10 @@ func (r *UserPostgres) Create(user models.User) (int, error) {
 
 func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
 	var user models.User
-	query := `
-		SELECT * FROM users
-		WHERE email=$1 AND hashed_pass=$2`
+	query := fmt.Sprintf(`
+		SELECT * FROM %s
+		WHERE email=$1 AND hashed_pass=$2
+	`, userTable)
 
 	err := r.db.Get(&user, query, email, passHash)
 	if err != nil && strings.Contains(err.Error(), "no rows") {

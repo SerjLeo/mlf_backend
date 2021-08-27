@@ -1,7 +1,7 @@
 package http_1_1
 
 import (
-	"fmt"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -31,7 +31,19 @@ func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(userId)
-
 	c.Set(userCtx, userId)
+}
+
+func (h *RequestHandler) getUserId(c *gin.Context) (int, error) {
+	stringId, exists := c.Get("userId")
+	if !exists {
+		return 0, errors.New("user id doesn't provided")
+	}
+
+	intId, ok := stringId.(int)
+	if !ok {
+		return 0, errors.New("wrong user id format")
+	}
+
+	return intId, nil
 }
