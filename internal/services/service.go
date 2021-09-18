@@ -24,6 +24,7 @@ type Transaction interface {
 type Category interface {
 	GetUserCategories(userId int) ([]models.Category, error)
 	GetUserCategoryById(userId, categoryId int) (models.Category, error)
+	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
 }
 
 type Service struct {

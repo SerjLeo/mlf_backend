@@ -20,3 +20,7 @@ func (s *CategoryService) GetUserCategories(userId int) ([]models.Category, erro
 func (s *CategoryService) GetUserCategoryById(userId, categoryId int) (models.Category, error) {
 	return s.repo.Category.GetUserCategoryById(userId, categoryId)
 }
+
+func (s *CategoryService) CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error) {
+	return s.repo.Category.CreateCategory(userId, input)
+}

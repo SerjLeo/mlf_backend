@@ -37,3 +37,17 @@ func (r *CategoryPostgres) GetUserCategoryById(userId, categoryId int) (models.C
 	err := r.db.Get(&category, query, userId, categoryId)
 	return category, err
 }
+
+func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error) {
+	query := fmt.Sprintf(`
+		INSERT INTO %s (name, color, user_id)
+		VALUES($1, $2, $3)
+		RETURNING *
+	`, categoryTable)
+
+	category := models.Category{}
+
+	row := r.db.QueryRow(query, input.Name, input.Color, userId)
+	err := row.Scan(&category.CategoryId, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
+	return category, err
+}

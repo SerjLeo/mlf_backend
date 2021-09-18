@@ -2,6 +2,7 @@ package http_1_1
 
 import (
 	"fmt"
+	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -44,7 +45,7 @@ func (h *RequestHandler) getCategoriesList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dataResponse{
-		data: categories,
+		Data: categories,
 	})
 }
 
@@ -86,12 +87,35 @@ func (h *RequestHandler) getCategoryById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dataResponse{
-		data: category,
+		Data: category,
 	})
 }
 
 func (h *RequestHandler) createCategory(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c,http.StatusUnauthorized,err.Error())
+		return
+	}
 
+	var input models.CreateCategoryInput
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c,http.StatusUnauthorized,err.Error())
+		return
+	}
+
+	fmt.Printf("%+v", input)
+
+	category, err := h.services.Category.CreateCategory(userId, input)
+	if err != nil {
+		newErrorResponse(c,http.StatusInternalServerError,fmt.Sprint("Error while creating category:",err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: category,
+	})
 }
 
 func (h *RequestHandler) updateCategory(c *gin.Context) {

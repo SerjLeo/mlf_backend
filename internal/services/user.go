@@ -96,8 +96,6 @@ func (s *UserService) SignIn(email, password string) (string, error) {
 		return "", err
 	}
 
-	fmt.Printf("%+v", user)
-
 	return s.tokenManager.GenerateToken(user.UserId, time.Hour*60)
 }
 

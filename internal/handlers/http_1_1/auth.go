@@ -47,7 +47,9 @@ func (h *RequestHandler) userSignIn(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{data: token})
+	fmt.Println(token)
+
+	c.JSON(http.StatusOK, dataResponse{Data: token})
 }
 
 type signUpInput struct {
@@ -85,7 +87,7 @@ func (h *RequestHandler) userSignUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dataResponse{data: token})
+	c.JSON(http.StatusCreated, dataResponse{Data: token})
 
 }
 
@@ -118,7 +120,7 @@ func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dataResponse{data: token})
+	c.JSON(http.StatusCreated, dataResponse{Data: token})
 }
 
 func (h *RequestHandler) userRefreshAccess(c *gin.Context) {

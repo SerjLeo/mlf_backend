@@ -10,3 +10,8 @@ type Category struct {
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 }
+
+type CreateCategoryInput struct {
+	Name  string `json:"name" db:"name" binding:"required"`
+	Color string `json:"color" db:"color"`
+}
