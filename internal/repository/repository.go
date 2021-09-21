@@ -18,6 +18,7 @@ type Category interface {
 	GetUserCategories(userId int) ([]models.Category, error)
 	GetUserCategoryById(userId, categoryId int) (models.Category, error)
 	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
+	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)
 }
 
 type Repository struct {

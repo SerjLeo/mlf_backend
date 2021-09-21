@@ -9,6 +9,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/SerjLeo/mlf_backend/pkg/cache"
+	"github.com/SerjLeo/mlf_backend/pkg/colors"
 	"github.com/SerjLeo/mlf_backend/pkg/email/smtp"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"github.com/SerjLeo/mlf_backend/pkg/templates"
@@ -37,7 +38,7 @@ func Run(configPath string) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	
+
 	templateManager := templates.NewStandardTemplatesManager(cfg.TemplatesPath)
 	tmpls, err := templateManager.ParseTemplates()
 	if err != nil {
@@ -47,12 +48,13 @@ func Run(configPath string) {
 
 	repos := repository.NewPostgresRepository(db)
 	service := services.NewService(services.ServiceDependencies{
-		Repo:          repos,
-		TokenManager:  tokenManager,
-		HashGenerator: password.NewSHA1Hash(cfg.HashSalt),
-		MailManager:   smtpSender,
-		Cache: appCache,
+		Repo:            repos,
+		TokenManager:    tokenManager,
+		HashGenerator:   password.NewSHA1Hash(cfg.HashSalt),
+		MailManager:     smtpSender,
+		Cache:           appCache,
 		TemplateManager: templateManager,
+		ColorManager:    colors.NewColorWorker(),
 	})
 	handler := handlers.NewHandler(service, tokenManager)
 

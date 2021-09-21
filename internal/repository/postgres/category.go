@@ -51,3 +51,7 @@ func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategor
 	err := row.Scan(&category.CategoryId, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
 	return category, err
 }
+
+func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error) {
+	return models.Category{}, nil
+}
