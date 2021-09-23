@@ -3,7 +3,7 @@ package http_1_1
 import "github.com/gin-gonic/gin"
 
 type dataResponse struct {
-	Data interface{}
+	Data interface{} `json:"data"`
 }
 
 type dataWithPaginationResponse struct {

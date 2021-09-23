@@ -53,5 +53,26 @@ func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategor
 }
 
 func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error) {
-	return models.Category{}, nil
+	query := fmt.Sprintf(`
+		UPDATE %s
+		SET name = $1, color = $2, updated_at = $3
+		WHERE user_id = $4 AND category_id = $5
+		RETURNING *
+	`, categoryTable)
+
+	category := models.Category{}
+
+	row := r.db.QueryRow(query, input.Name, input.Color, input.UpdatedAt, userId, categoryId)
+	err := row.Scan(&category.CategoryId, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
+	return category, err
+}
+
+func (r *CategoryPostgres) DeleteCategory(userId, categoryId int) error {
+	query := fmt.Sprintf(`
+		DELETE FROM %s
+		WHERE user_id = $1 AND category_id = $2
+	`, categoryTable)
+
+	_, err := r.db.Exec(query, userId, categoryId)
+	return err
 }
