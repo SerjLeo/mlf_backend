@@ -18,5 +18,6 @@ func (h *RequestHandler) Init(root *gin.RouterGroup) {
 	{
 		h.initAuthRoutes(api)
 		h.initCategoriesRoutes(api)
+		h.initTransactionsRoutes(api)
 	}
 }
