@@ -92,8 +92,16 @@ func populateEnv(cfg *Config) error {
 		return err
 	}
 
-	if dbPass, exists := os.LookupEnv("DB_PASSWORD"); exists {
+	if dbPass, exists := os.LookupEnv("POSTGRES_PASSWORD"); exists {
 		cfg.Postgres.Password = dbPass
+	}
+
+	if dbUsername, exists := os.LookupEnv("POSTGRES_USER"); exists {
+		cfg.Postgres.Username = dbUsername
+	}
+
+	if dbName, exists := os.LookupEnv("POSTGRES_DB"); exists {
+		cfg.Postgres.DBName = dbName
 	}
 
 	if hashSalt, exists := os.LookupEnv("HASH_SALT"); exists {
