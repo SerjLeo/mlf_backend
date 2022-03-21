@@ -1,0 +1,20 @@
+FROM golang:1.17.3-alpine3.14 AS builder
+
+COPY . /github.com/SerjLeo/mlf_backend/
+WORKDIR /github.com/SerjLeo/mlf_backend/
+
+RUN go mod download && go get -u ./...
+RUN go build -o bin/main cmd/app/main.go
+
+FROM alpine:latest
+
+WORKDIR /root/
+
+COPY --from=0 /github.com/SerjLeo/mlf_backend/bin/main .
+COPY --from=0 /github.com/SerjLeo/mlf_backend/config/common.yml .
+COPY --from=0 /github.com/SerjLeo/mlf_backend/.env .
+COPY --from=0 /github.com/SerjLeo/mlf_backend/templates/ ./templates
+
+EXPOSE 8000 9500
+
+CMD ["./main"]
