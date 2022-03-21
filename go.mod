@@ -3,11 +3,11 @@ module github.com/SerjLeo/mlf_backend
 go 1.16
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/imdario/mergo v0.3.12
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.3.0
