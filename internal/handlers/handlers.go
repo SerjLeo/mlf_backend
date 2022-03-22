@@ -6,9 +6,11 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/gin-gonic/gin"
+	cors "github.com/itsjamie/gin-cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"time"
 
 	_ "github.com/SerjLeo/mlf_backend/docs"
 )
@@ -28,6 +30,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router.Use(
 		gin.Recovery(),
 		gin.Logger(),
+		cors.Middleware(cors.Config{
+			Origins:         "*",
+			Methods:         "GET, PUT, POST, DELETE",
+			RequestHeaders:  "Origin, Authorization, Content-Type",
+			ExposedHeaders:  "",
+			MaxAge:          50 * time.Second,
+			Credentials:     false,
+			ValidateHeaders: false,
+		}),
 	)
 
 	h.initApi(router)
