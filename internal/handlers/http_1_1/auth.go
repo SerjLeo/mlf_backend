@@ -13,7 +13,8 @@ func (h *RequestHandler) initAuthRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-in", h.userSignIn)
 		auth.POST("/sign-up", h.userSignUp)
 		auth.POST("/sign-up-with-email", h.userSignUpWithEmail)
-		auth.POST("/refresh", h.userRefreshAccess)
+		auth.POST("/restore-password", h.userRestorePassword)
+		auth.POST("/check", h.userCheckToken)
 	}
 }
 
@@ -123,6 +124,21 @@ func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 	c.JSON(http.StatusCreated, dataResponse{Data: token})
 }
 
-func (h *RequestHandler) userRefreshAccess(c *gin.Context) {
+func (h *RequestHandler) userRestorePassword(c *gin.Context) {
 
+}
+
+func (h *RequestHandler) userCheckToken(c *gin.Context) {
+	token := c.Param("token")
+	if token == "" {
+		newErrorResponse(c, http.StatusBadRequest, "No token provided")
+		return
+	}
+
+	userId, err := h.services.User.CheckUserToken(token)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while checking token: %s", err.Error()))
+	}
+
+	c.JSON(http.StatusCreated, dataResponse{Data: userId})
 }
