@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 	"os"
@@ -60,8 +59,6 @@ func InitConfig(configDir string) (*Config, error) {
 	if err := populateEnv(&cfg); err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("%+v", cfg)
 
 	return &cfg, nil
 }

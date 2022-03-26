@@ -1,6 +1,8 @@
 basePath: /api
 definitions:
   http_1_1.dataResponse:
+    properties:
+      data: {}
     type: object
   http_1_1.dataWithPaginationResponse:
     type: object
@@ -40,6 +42,30 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  models.Category:
+    properties:
+      category_id:
+        type: integer
+      color:
+        type: string
+      created_at:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.CreateCategoryInput:
+    properties:
+      color:
+        type: string
+      name:
+        type: string
+    required:
+    - name
     type: object
 host: localhost:8000
 info:
@@ -204,7 +230,83 @@ paths:
       summary: Get categories list
       tags:
       - category
+    post:
+      consumes:
+      - application/json
+      description: creates new category and returns it
+      parameters:
+      - description: created category fields
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create new category
+      tags:
+      - category
   /category/{categoryId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete existing category and returns id of deleted category
+      parameters:
+      - description: target category id
+        in: path
+        name: categoryId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete existing category
+      tags:
+      - category
     get:
       consumes:
       - application/json
@@ -240,6 +342,49 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get category by id
+      tags:
+      - category
+    put:
+      consumes:
+      - application/json
+      description: updates existing category and returns updated instance
+      parameters:
+      - description: updated category fields
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Category'
+      - description: target category id
+        in: path
+        name: categoryId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update existing category
       tags:
       - category
 securityDefinitions:
