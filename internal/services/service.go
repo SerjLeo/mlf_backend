@@ -16,6 +16,7 @@ type User interface {
 	CreateByEmail(email string) (string, error)
 	SignIn(email, password string) (string, error)
 	CheckUserToken(token string) (int, error)
+	GetUserProfile(userId int) (models.User, error)
 	SendTestEmail() error
 }
 

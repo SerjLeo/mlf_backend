@@ -108,6 +108,10 @@ func (s *UserService) CheckUserToken(token string) (int, error) {
 	return claims.UserId, nil
 }
 
+func (s *UserService) GetUserProfile(userId int) (models.User, error) {
+	return s.repo.User.GetUserById(userId)
+}
+
 func (s *UserService) SendTestEmail() error {
 	body, err := s.templateManager.ExecuteTemplateToString(
 		s.cache.Templates["confirmEmail.html"],

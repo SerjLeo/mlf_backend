@@ -9,6 +9,7 @@ import (
 type User interface {
 	Create(user models.User) (int, error)
 	GetUser(email, passHash string) (models.User, error)
+	GetUserById(userId int) (models.User, error)
 }
 
 type Transaction interface {

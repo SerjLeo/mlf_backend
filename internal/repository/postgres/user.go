@@ -49,3 +49,18 @@ func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
 
 	return user, err
 }
+
+func (r *UserPostgres) GetUserById(userId int) (models.User, error) {
+	var user models.User
+	query := fmt.Sprintf(`
+		SELECT * FROM %s
+		WHERE user_id=$1
+	`, userTable)
+
+	err := r.db.Get(&user, query, userId)
+	if err != nil && strings.Contains(err.Error(), "no rows") {
+		return user, models.EmailOrPassNotMatch
+	}
+
+	return user, err
+}

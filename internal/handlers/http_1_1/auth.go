@@ -10,11 +10,11 @@ import (
 func (h *RequestHandler) initAuthRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/auth")
 	{
+		auth.GET("/check", h.userCheckToken)
 		auth.POST("/sign-in", h.userSignIn)
 		auth.POST("/sign-up", h.userSignUp)
 		auth.POST("/sign-up-with-email", h.userSignUpWithEmail)
 		auth.POST("/restore-password", h.userRestorePassword)
-		auth.POST("/check", h.userCheckToken)
 	}
 }
 
@@ -47,8 +47,6 @@ func (h *RequestHandler) userSignIn(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	fmt.Println(token)
 
 	c.JSON(http.StatusOK, dataResponse{Data: token})
 }
@@ -129,16 +127,25 @@ func (h *RequestHandler) userRestorePassword(c *gin.Context) {
 }
 
 func (h *RequestHandler) userCheckToken(c *gin.Context) {
-	token := c.Param("token")
-	if token == "" {
-		newErrorResponse(c, http.StatusBadRequest, "No token provided")
+	h.isUserAuthenticated(c)
+
+	userId, exists := c.Get("userId")
+	if !exists {
+		newErrorResponse(c, http.StatusInternalServerError, "error while checking authorization")
 		return
 	}
 
-	userId, err := h.services.User.CheckUserToken(token)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while checking token: %s", err.Error()))
+	intId, ok := userId.(int)
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "wrong user id format")
+		return
 	}
 
-	c.JSON(http.StatusCreated, dataResponse{Data: userId})
+	user, err := h.services.User.GetUserProfile(intId)
+	if err != nil {
+		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{Data: user})
 }

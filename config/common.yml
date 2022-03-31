@@ -2,7 +2,7 @@ http:
   port: 8000
 env: "local"
 postgres:
-  host: "localhost"
-  port: "8765"
+  host: "database"
+  port: "5432"
   sslmode: "disable"
 templatesPath: "./templates"
