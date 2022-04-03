@@ -129,19 +129,13 @@ func (h *RequestHandler) userRestorePassword(c *gin.Context) {
 func (h *RequestHandler) userCheckToken(c *gin.Context) {
 	h.isUserAuthenticated(c)
 
-	userId, exists := c.Get("userId")
-	if !exists {
+	userId, err := h.getUserId(c)
+	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "error while checking authorization")
 		return
 	}
 
-	intId, ok := userId.(int)
-	if !ok {
-		newErrorResponse(c, http.StatusInternalServerError, "wrong user id format")
-		return
-	}
-
-	user, err := h.services.User.GetUserProfile(intId)
+	user, err := h.services.User.GetUserProfile(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")
 		return
