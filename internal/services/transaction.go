@@ -17,7 +17,7 @@ func (s *TransactionService) CreateTransaction(userId int, input *models.Transac
 	return s.repo.Transaction.CreateTransaction(userId, *input, categoriesIds)
 }
 
-func (s *TransactionService) UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error){
+func (s *TransactionService) UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error) {
 	return s.repo.Transaction.UpdateTransaction(userId, transactionId, *input)
 }
 
@@ -25,18 +25,18 @@ func (s *TransactionService) DeleteTransaction(userId, transactionId int) (int, 
 	return s.repo.Transaction.DeleteTransaction(userId, transactionId)
 }
 
-func (s *TransactionService) GetTransactions(userId int) ([]models.Transaction, error){
+func (s *TransactionService) GetTransactions(userId int) ([]models.Transaction, error) {
 	return s.repo.Transaction.GetTransactions(userId)
 }
 
-func (s *TransactionService) GetTransactionById(userId, transactionId int) (models.Transaction, error){
+func (s *TransactionService) GetTransactionById(userId, transactionId int) (models.Transaction, error) {
 	return s.repo.Transaction.GetTransactionById(userId, transactionId)
 }
 
-func (s *TransactionService) AttachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error){
+func (s *TransactionService) AttachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error) {
 	return s.repo.Transaction.AttachCategory(userId, transactionId, categoriesIds)
 }
 
-func (s *TransactionService) DetachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error){
+func (s *TransactionService) DetachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error) {
 	return s.repo.Transaction.DetachCategory(userId, transactionId, categoriesIds)
 }

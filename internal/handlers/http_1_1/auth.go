@@ -141,5 +141,5 @@ func (h *RequestHandler) userCheckToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{Data: user})
+	c.JSON(http.StatusOK, dataResponse{Data: userResponse{Name: user.Name, Email: user.Email}})
 }

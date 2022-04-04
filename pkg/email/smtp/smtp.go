@@ -30,7 +30,7 @@ func (s *SMTPSender) SendEmail(input email.SendInput) error {
 	addr := s.host + ":" + s.port
 	subject := "Subject:" + input.Subject + "\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	msg := []byte( subject + mime + input.Body)
+	msg := []byte(subject + mime + input.Body)
 
 	if err := goSMTP.SendMail(addr, auth, s.sender, []string{input.To}, msg); err != nil {
 		fmt.Println("error while sending email", err.Error())

@@ -21,6 +21,11 @@ type errorResponse struct {
 	Error string
 }
 
+type userResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 func newErrorResponse(c *gin.Context, statusCode int, message string) {
 	c.AbortWithStatusJSON(statusCode, errorResponse{message})
 }

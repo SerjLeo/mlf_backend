@@ -30,7 +30,6 @@ func IsEmailValid(email string) bool {
 	return emailRegex.MatchString(email)
 }
 
-
 func (i *SendInput) Validate() error {
 	if !IsEmailValid(i.To) || i.To == "" {
 		return errors.New("invalid or empty target email")

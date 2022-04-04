@@ -17,7 +17,7 @@ func (r *TransactionPostgres) CreateTransaction(userId int, input models.Transac
 	return models.Transaction{}, nil
 }
 
-func (r *TransactionPostgres) UpdateTransaction(userId, transactionId int, input models.Transaction) (models.Transaction, error){
+func (r *TransactionPostgres) UpdateTransaction(userId, transactionId int, input models.Transaction) (models.Transaction, error) {
 	return models.Transaction{}, nil
 }
 
@@ -25,18 +25,18 @@ func (r *TransactionPostgres) DeleteTransaction(userId, transactionId int) (int,
 	return 0, nil
 }
 
-func (r *TransactionPostgres) GetTransactions(userId int) ([]models.Transaction, error){
+func (r *TransactionPostgres) GetTransactions(userId int) ([]models.Transaction, error) {
 	return []models.Transaction{}, nil
 }
 
-func (r *TransactionPostgres) GetTransactionById(userId, transactionId int) (models.Transaction, error){
+func (r *TransactionPostgres) GetTransactionById(userId, transactionId int) (models.Transaction, error) {
 	return models.Transaction{}, nil
 }
 
-func (r *TransactionPostgres) AttachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error){
+func (r *TransactionPostgres) AttachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error) {
 	return models.Transaction{}, nil
 }
 
-func (r *TransactionPostgres) DetachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error){
+func (r *TransactionPostgres) DetachCategory(userId, transactionId int, categoriesIds []int) (models.Transaction, error) {
 	return models.Transaction{}, nil
 }

@@ -4,7 +4,6 @@ import "github.com/SerjLeo/mlf_backend/internal/app"
 
 const configPath = "config"
 
-
 // @title My Local Financier API
 // @version 1.0
 // @description API for MLF application

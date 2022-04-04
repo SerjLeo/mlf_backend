@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	userTable = "users"
-	categoryTable = "category"
-	transactionTable = "transaction"
+	userTable                = "users"
+	categoryTable            = "category"
+	transactionTable         = "transaction"
 	transactionCategoryTable = "transaction_category"
 )
 

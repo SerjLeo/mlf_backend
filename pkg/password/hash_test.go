@@ -30,7 +30,6 @@ func TestSHA1Hash_EncodeString(t *testing.T) {
 		}
 	})
 
-
 	anotherHashService := NewSHA1Hash("wrongSalt")
 
 	t.Run("testing fail cases (changed salt)", func(t *testing.T) {
