@@ -1,12 +1,19 @@
 package models
 
 type Transaction struct {
-	transactionId   int        `json:"transaction_id" db:"transaction_id"`
-	userId          int        `json:"user_id" db:"user_id"`
-	amount          float64    `json:"amount" binding:"required" db:"amount"`
-	description     string     `json:"description" db:"description"`
-	transactionType bool       `json:"type" binding:"required" db:"type"`
-	createdAt       string     `json:"created_at" db:"created_at"`
-	updatedAt       string     `json:"updated_at" db:"created_at"`
-	categories      []Category `json:"categories,omitempty"`
+	TransactionId   int        `json:"transaction_id" db:"transaction_id"`
+	UserId          int        `json:"user_id" db:"user_id"`
+	Amount          float64    `json:"amount" binding:"required" db:"amount"`
+	Description     string     `json:"description" db:"description"`
+	TransactionType bool       `json:"type" binding:"required" db:"type"`
+	CreatedAt       string     `json:"created_at" db:"created_at"`
+	UpdatedAt       string     `json:"updated_at" db:"updated_at"`
+	Categories      []Category `json:"categories,omitempty"`
+}
+
+type CreateTransactionInput struct {
+	Amount          float64 `json:"amount" binding:"required" db:"amount"`
+	Description     string  `json:"description" db:"description"`
+	TransactionType bool    `json:"type" binding:"required" db:"type"`
+	CategoriesIds   []int   `json:"categories,omitempty"`
 }
