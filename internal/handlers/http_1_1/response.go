@@ -7,14 +7,14 @@ type dataResponse struct {
 }
 
 type dataWithPaginationResponse struct {
-	data interface{}
-	meta metaParams
+	Data interface{} `json:"data"`
+	Meta metaParams  `json:"meta"`
 }
 
 type metaParams struct {
-	page    int
-	perPage int
-	total   int
+	Page    int `json:"page"`
+	PerPage int `json:"perPage"`
+	Total   int `json:"total"`
 }
 
 type errorResponse struct {

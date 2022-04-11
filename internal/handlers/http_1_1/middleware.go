@@ -1,8 +1,9 @@
 package http_1_1
 
 import (
-	"errors"
+	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 )
@@ -10,6 +11,7 @@ import (
 const (
 	authorizationHeader = "Authorization"
 	userCtx             = "userId"
+	paginationCtx       = "pagination"
 )
 
 func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
@@ -35,7 +37,7 @@ func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
 }
 
 func (h *RequestHandler) getUserId(c *gin.Context) (int, error) {
-	stringId, exists := c.Get("userId")
+	stringId, exists := c.Get(userCtx)
 	if !exists {
 		return 0, errors.New("user id doesn't provided")
 	}
@@ -46,4 +48,30 @@ func (h *RequestHandler) getUserId(c *gin.Context) (int, error) {
 	}
 
 	return intId, nil
+}
+
+func (h *RequestHandler) withPagination(c *gin.Context) {
+	paginationParams := models.PaginationParams{}
+
+	err := c.BindQuery(&paginationParams)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, errors.Wrap(err, "Bad pagination params").Error())
+		return
+	}
+
+	c.Set(paginationCtx, paginationParams)
+}
+
+func (h *RequestHandler) getPagination(c *gin.Context) (models.PaginationParams, error) {
+	pagination, exists := c.Get(paginationCtx)
+	if !exists {
+		return models.PaginationParams{}, errors.New("pagination doesn't provided")
+	}
+
+	params, ok := pagination.(models.PaginationParams)
+	if !ok {
+		return models.PaginationParams{}, errors.New("Something wrong with pagination")
+	}
+	
+	return params, nil
 }

@@ -18,8 +18,8 @@ func NewCategoryService(repo *repository.Repository, colors colors.ColorManager)
 	return &CategoryService{repo: repo, colors: colors}
 }
 
-func (s *CategoryService) GetUserCategories(userId int) ([]models.Category, error) {
-	return s.repo.Category.GetUserCategories(userId)
+func (s *CategoryService) GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error) {
+	return s.repo.Category.GetUserCategories(userId, pagination)
 }
 
 func (s *CategoryService) GetUserCategoryById(userId, categoryId int) (models.Category, error) {

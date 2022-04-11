@@ -14,15 +14,16 @@ func NewCategoryPostgres(db *sqlx.DB) *CategoryPostgres {
 	return &CategoryPostgres{db: db}
 }
 
-func (r *CategoryPostgres) GetUserCategories(userId int) ([]models.Category, error) {
+func (r *CategoryPostgres) GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error) {
 	query := fmt.Sprintf(`
 		SELECT * FROM %s
 		WHERE user_id=$1
 	`, categoryTable)
+	queryWithPagination := handlePagination(query, pagination)
 
 	categories := []models.Category{}
 
-	err := r.db.Select(&categories, query, userId)
+	err := r.db.Select(&categories, queryWithPagination, userId)
 	return categories, err
 }
 

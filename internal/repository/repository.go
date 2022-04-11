@@ -25,7 +25,7 @@ type Transaction interface {
 }
 
 type Category interface {
-	GetUserCategories(userId int) ([]models.Category, error)
+	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
 	GetUserCategoryById(userId, categoryId int) (models.Category, error)
 	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
 	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)

@@ -3,6 +3,7 @@ package postgres
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/config"
+	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -12,6 +13,7 @@ const (
 	categoryTable            = "category"
 	transactionTable         = "transaction"
 	transactionCategoryTable = "transaction_category"
+	defaultPerPage           = 20
 )
 
 func NewPostgresDB(cfg config.PostgresConfig) (*sqlx.DB, error) {
@@ -27,4 +29,18 @@ func NewPostgresDB(cfg config.PostgresConfig) (*sqlx.DB, error) {
 	}
 
 	return db, nil
+}
+
+func handlePagination(query string, params models.PaginationParams) string {
+	perPage := defaultPerPage
+	if params.PerPage != 0 {
+		perPage = params.PerPage
+	}
+	query = fmt.Sprintf("%s LIMIT %d", query, perPage)
+
+	if params.Page != 0 {
+		query = fmt.Sprintf("%s OFFSET %d", query, perPage*(params.Page-1))
+	}
+
+	return query
 }

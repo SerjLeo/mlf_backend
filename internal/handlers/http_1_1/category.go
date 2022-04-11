@@ -12,7 +12,7 @@ import (
 func (h *RequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 	category := api.Group("/category", h.isUserAuthenticated)
 	{
-		category.GET("", h.getCategoriesList)
+		category.GET("", h.withPagination, h.getCategoriesList)
 		category.GET("/:id", h.getCategoryById)
 		category.POST("", h.createCategory)
 		category.PUT("/:id", h.updateCategory)
@@ -39,7 +39,12 @@ func (h *RequestHandler) getCategoriesList(c *gin.Context) {
 		return
 	}
 
-	categories, err := h.services.Category.GetUserCategories(userId)
+	pagination, err := h.getPagination(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	categories, err := h.services.Category.GetUserCategories(userId, pagination)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting categories list:", err.Error()))
 		return
