@@ -17,8 +17,8 @@ func (h *RequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 		transaction.POST("", h.createTransaction)
 		transaction.PUT("/:id", h.updateTransaction)
 		transaction.DELETE("/:id", h.deleteTransaction)
-		transaction.POST("/:id/category-attach", h.attachCategories)
-		transaction.POST("/:id/category-detach", h.detachCategories)
+		transaction.POST("/:id/category-attach/:category_id", h.attachCategories)
+		transaction.POST("/:id/category-detach/:category_id", h.detachCategories)
 	}
 }
 
@@ -132,10 +132,116 @@ func (h *RequestHandler) createTransaction(c *gin.Context) {
 	})
 }
 
-func (h *RequestHandler) updateTransaction(c *gin.Context) {}
+func (h *RequestHandler) updateTransaction(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
 
-func (h *RequestHandler) deleteTransaction(c *gin.Context) {}
+	transactionId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		return
+	}
 
-func (h *RequestHandler) attachCategories(c *gin.Context) {}
+	var input models.Transaction
 
-func (h *RequestHandler) detachCategories(c *gin.Context) {}
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	transaction, err := h.services.Transaction.UpdateTransaction(userId, transactionId, &input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: transaction,
+	})
+}
+
+func (h *RequestHandler) deleteTransaction(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	transactionId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		return
+	}
+
+	if err := h.services.Transaction.DeleteTransaction(userId, transactionId); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: transactionId,
+	})
+}
+
+func (h *RequestHandler) attachCategories(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	transactionId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		return
+	}
+
+	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		return
+	}
+
+	err = h.services.Transaction.AttachCategory(userId, transactionId, categoryId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: true,
+	})
+}
+
+func (h *RequestHandler) detachCategories(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	transactionId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		return
+	}
+
+	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		return
+	}
+
+	err = h.services.Transaction.DetachCategory(userId, transactionId, categoryId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, dataResponse{
+		Data: true,
+	})
+}

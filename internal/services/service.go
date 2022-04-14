@@ -23,11 +23,11 @@ type User interface {
 type Transaction interface {
 	CreateTransaction(userId int, input *models.CreateTransactionInput) (models.Transaction, error)
 	UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error)
-	DeleteTransaction(userId, transactionId int) (int, error)
+	DeleteTransaction(userId, transactionId int) error
 	GetTransactions(userId int) ([]models.Transaction, error)
 	GetTransactionById(userId, transactionId int) (models.Transaction, error)
-	AttachCategory(userId int, transaction *models.Transaction, categoryId int) error
-	DetachCategory(userId int, transaction *models.Transaction, categoryId int) error
+	AttachCategory(userId int, transactionId, categoryId int) error
+	DetachCategory(userId int, transactionId, categoryId int) error
 }
 
 type Category interface {
