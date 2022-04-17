@@ -1,9 +1,9 @@
 CREATE table transaction_category
 (
-    transaction_category_id serial PRIMARY KEY,
     user_id                 integer,
     category_id             integer,
     transaction_id          integer,
+    CONSTRAINT transaction_category_id PRIMARY KEY (category_id, transaction_id),
     created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
