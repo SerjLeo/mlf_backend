@@ -7,18 +7,26 @@ import (
 	"net/http"
 )
 
-func (h *RequestHandler) initAuthRoutes(api *gin.RouterGroup) {
+const (
+	CheckTokenRoute      = "/check"
+	SignInRoute          = "/sign-in"
+	SignUpRoute          = "/sign-up"
+	SignUpWithEmailRoute = "/sign-up-with-email"
+	RestorePasswordRoute = "/restore-password"
+)
+
+func (h *HTTPRequestHandler) initAuthRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/auth")
 	{
-		auth.GET("/check", h.userCheckToken)
-		auth.POST("/sign-in", h.userSignIn)
-		auth.POST("/sign-up", h.userSignUp)
-		auth.POST("/sign-up-with-email", h.userSignUpWithEmail)
-		auth.POST("/restore-password", h.userRestorePassword)
+		auth.GET(CheckTokenRoute, h.userCheckToken)
+		auth.POST(SignInRoute, h.userSignIn)
+		auth.POST(SignUpRoute, h.userSignUp)
+		auth.POST(SignUpWithEmailRoute, h.userSignUpWithEmail)
+		auth.POST(RestorePasswordRoute, h.userRestorePassword)
 	}
 }
 
-type signInInput struct {
+type SignInInput struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -28,21 +36,21 @@ type signInInput struct {
 // @Description returns auth JWT
 // @Accept  json
 // @Produce  json
-// @Param input body signInInput true "info for user's login"
+// @Param input body SignInInput true "info for user's login"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-in [post]
-func (h *RequestHandler) userSignIn(c *gin.Context) {
-	var input signInInput
+func (h *HTTPRequestHandler) userSignIn(c *gin.Context) {
+	var input SignInInput
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
-	token, err := h.services.User.SignIn(input.Email, input.Password)
+	token, err := h.services.SignIn(input.Email, input.Password)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -51,10 +59,10 @@ func (h *RequestHandler) userSignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, dataResponse{Data: token})
 }
 
-type signUpInput struct {
-	Email    string `json:"email" binding:"required"`
+type SignUpInput struct {
+	Email    string `json:"email" binding:"required,email"`
 	Name     string `json:"name" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
 }
 
 // @Summary User sign-up with name, email and password
@@ -62,21 +70,21 @@ type signUpInput struct {
 // @Description creates user and returns auth JWT
 // @Accept  json
 // @Produce  json
-// @Param input body signUpInput true "data for user creation"
+// @Param input body SignUpInput true "data for user creation"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up [post]
-func (h *RequestHandler) userSignUp(c *gin.Context) {
-	var input signUpInput
+func (h *HTTPRequestHandler) userSignUp(c *gin.Context) {
+	var input SignUpInput
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
-	token, err := h.services.User.Create(models.User{
+	token, err := h.services.Create(models.User{
 		Email:    input.Email,
 		Name:     input.Name,
 		Password: input.Password,
@@ -91,7 +99,7 @@ func (h *RequestHandler) userSignUp(c *gin.Context) {
 }
 
 type signUpWithEmailInput struct {
-	Email string `json:"email" binding:"required"`
+	Email string `json:"email" binding:"required,email"`
 }
 
 // @Summary User sign-up with email only
@@ -105,7 +113,7 @@ type signUpWithEmailInput struct {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up-with-email [post]
-func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
+func (h *HTTPRequestHandler) userSignUpWithEmail(c *gin.Context) {
 	var input signUpWithEmailInput
 
 	if err := c.BindJSON(&input); err != nil {
@@ -113,7 +121,7 @@ func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 		return
 	}
 
-	token, err := h.services.User.CreateByEmail(input.Email)
+	token, err := h.services.CreateUserByEmail(input.Email)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
 		return
@@ -122,11 +130,11 @@ func (h *RequestHandler) userSignUpWithEmail(c *gin.Context) {
 	c.JSON(http.StatusCreated, dataResponse{Data: token})
 }
 
-func (h *RequestHandler) userRestorePassword(c *gin.Context) {
+func (h *HTTPRequestHandler) userRestorePassword(c *gin.Context) {
 
 }
 
-func (h *RequestHandler) userCheckToken(c *gin.Context) {
+func (h *HTTPRequestHandler) userCheckToken(c *gin.Context) {
 	h.isUserAuthenticated(c)
 
 	userId, err := h.getUserId(c)
@@ -135,7 +143,7 @@ func (h *RequestHandler) userCheckToken(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.User.GetUserProfile(userId)
+	user, err := h.services.GetUserProfile(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")
 		return

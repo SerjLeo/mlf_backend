@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/SerjLeo/mlf_backend/internal/config"
 	"github.com/SerjLeo/mlf_backend/internal/handlers"
+	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/internal/repository/postgres"
@@ -56,7 +57,7 @@ func Run(configPath string) {
 		TemplateManager: templateManager,
 		ColorManager:    colors.NewColorWorker(),
 	})
-	handler := handlers.NewHandler(service, tokenManager)
+	var handler handlers.Handler = http_1_1.NewRequestHandler(service)
 
 	server := models.NewServer(cfg.HTTP.Port, handler.InitRoutes())
 

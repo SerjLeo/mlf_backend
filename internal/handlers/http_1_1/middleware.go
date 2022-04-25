@@ -14,7 +14,7 @@ const (
 	paginationCtx       = "pagination"
 )
 
-func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
+func (h *HTTPRequestHandler) isUserAuthenticated(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
@@ -27,7 +27,7 @@ func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
 		return
 	}
 
-	userId, err := h.services.User.CheckUserToken(headerParts[1])
+	userId, err := h.services.CheckUserToken(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
@@ -36,7 +36,7 @@ func (h *RequestHandler) isUserAuthenticated(c *gin.Context) {
 	c.Set(userCtx, userId)
 }
 
-func (h *RequestHandler) getUserId(c *gin.Context) (int, error) {
+func (h *HTTPRequestHandler) getUserId(c *gin.Context) (int, error) {
 	stringId, exists := c.Get(userCtx)
 	if !exists {
 		return 0, errors.New("user id doesn't provided")
@@ -50,7 +50,7 @@ func (h *RequestHandler) getUserId(c *gin.Context) (int, error) {
 	return intId, nil
 }
 
-func (h *RequestHandler) withPagination(c *gin.Context) {
+func (h *HTTPRequestHandler) withPagination(c *gin.Context) {
 	paginationParams := models.PaginationParams{}
 
 	err := c.BindQuery(&paginationParams)
@@ -62,7 +62,7 @@ func (h *RequestHandler) withPagination(c *gin.Context) {
 	c.Set(paginationCtx, paginationParams)
 }
 
-func (h *RequestHandler) getPagination(c *gin.Context) (models.PaginationParams, error) {
+func (h *HTTPRequestHandler) getPagination(c *gin.Context) (models.PaginationParams, error) {
 	pagination, exists := c.Get(paginationCtx)
 	if !exists {
 		return models.PaginationParams{}, errors.New("pagination doesn't provided")
@@ -72,6 +72,6 @@ func (h *RequestHandler) getPagination(c *gin.Context) (models.PaginationParams,
 	if !ok {
 		return models.PaginationParams{}, errors.New("Something wrong with pagination")
 	}
-	
+
 	return params, nil
 }

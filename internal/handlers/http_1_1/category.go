@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (h *RequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
+func (h *HTTPRequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 	category := api.Group("/category", h.isUserAuthenticated)
 	{
 		category.GET("", h.withPagination, h.getCategoriesList)
@@ -32,7 +32,7 @@ func (h *RequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category [get]
-func (h *RequestHandler) getCategoriesList(c *gin.Context) {
+func (h *HTTPRequestHandler) getCategoriesList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -44,7 +44,7 @@ func (h *RequestHandler) getCategoriesList(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	categories, err := h.services.Category.GetUserCategories(userId, pagination)
+	categories, err := h.services.GetUserCategories(userId, pagination)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting categories list:", err.Error()))
 		return
@@ -67,7 +67,7 @@ func (h *RequestHandler) getCategoriesList(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [get]
-func (h *RequestHandler) getCategoryById(c *gin.Context) {
+func (h *HTTPRequestHandler) getCategoryById(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -86,7 +86,7 @@ func (h *RequestHandler) getCategoryById(c *gin.Context) {
 		return
 	}
 
-	category, err := h.services.Category.GetUserCategoryById(userId, catId)
+	category, err := h.services.GetUserCategoryById(userId, catId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting category: ", err.Error()))
 		return
@@ -109,7 +109,7 @@ func (h *RequestHandler) getCategoryById(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category [post]
-func (h *RequestHandler) createCategory(c *gin.Context) {
+func (h *HTTPRequestHandler) createCategory(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -123,7 +123,7 @@ func (h *RequestHandler) createCategory(c *gin.Context) {
 		return
 	}
 
-	category, err := h.services.Category.CreateCategory(userId, input)
+	category, err := h.services.CreateCategory(userId, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while creating category: ", err.Error()))
 		return
@@ -147,7 +147,7 @@ func (h *RequestHandler) createCategory(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [put]
-func (h *RequestHandler) updateCategory(c *gin.Context) {
+func (h *HTTPRequestHandler) updateCategory(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -167,7 +167,7 @@ func (h *RequestHandler) updateCategory(c *gin.Context) {
 		return
 	}
 
-	category, err := h.services.Category.UpdateCategory(userId, categoryId, input)
+	category, err := h.services.UpdateCategory(userId, categoryId, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating category: ", err.Error()))
 		return
@@ -190,7 +190,7 @@ func (h *RequestHandler) updateCategory(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [delete]
-func (h *RequestHandler) deleteCategory(c *gin.Context) {
+func (h *HTTPRequestHandler) deleteCategory(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -203,7 +203,7 @@ func (h *RequestHandler) deleteCategory(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Category.DeleteCategory(userId, categoryId); err != nil {
+	if err := h.services.DeleteCategory(userId, categoryId); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting category: ", err.Error()))
 		return
 	}

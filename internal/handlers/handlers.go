@@ -1,70 +1,44 @@
 package handlers
 
 import (
-	"fmt"
-	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
-	"github.com/SerjLeo/mlf_backend/internal/services"
-	"github.com/SerjLeo/mlf_backend/pkg/auth"
-	"github.com/gin-gonic/gin"
-	cors "github.com/itsjamie/gin-cors"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"time"
-
 	_ "github.com/SerjLeo/mlf_backend/docs"
+	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	services     *services.Service
-	tokenManager auth.TokenManager
+type User interface {
+	Create(user models.User) (string, error)
+	CreateUserByEmail(email string) (string, error)
+	SignIn(email, password string) (string, error)
+	CheckUserToken(token string) (int, error)
+	GetUserProfile(userId int) (models.User, error)
+	SendTestEmail() error
 }
 
-func NewHandler(services *services.Service, tokenManager auth.TokenManager) *Handler {
-	return &Handler{services: services, tokenManager: tokenManager}
+type Transaction interface {
+	CreateTransaction(userId int, input *models.CreateTransactionInput) (models.Transaction, error)
+	UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error)
+	DeleteTransaction(userId, transactionId int) error
+	GetTransactions(userId int) ([]models.Transaction, error)
+	GetTransactionById(userId, transactionId int) (models.Transaction, error)
+	AttachCategory(userId int, transactionId, categoryId int) error
+	DetachCategory(userId int, transactionId, categoryId int) error
 }
 
-func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.New()
-
-	router.Use(
-		gin.Recovery(),
-		gin.Logger(),
-		cors.Middleware(cors.Config{
-			Origins:         "*",
-			Methods:         "GET, PUT, POST, DELETE",
-			RequestHeaders:  "Origin, Authorization, Content-Type",
-			ExposedHeaders:  "",
-			MaxAge:          50 * time.Second,
-			Credentials:     false,
-			ValidateHeaders: false,
-		}),
-	)
-
-	h.initApi(router)
-
-	return router
+type Category interface {
+	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
+	GetUserCategoryById(userId, categoryId int) (models.Category, error)
+	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
+	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)
+	DeleteCategory(userId, categoryId int) error
 }
 
-func (h *Handler) initApi(router *gin.Engine) {
-	httpHandler := http_1_1.NewRequestHandler(h.services)
-	root := router.Group("/")
-	{
-		root.GET("/ping", func(context *gin.Context) {
-			context.String(http.StatusOK, "Hello from server")
-		})
-		root.GET("/send-email", func(context *gin.Context) {
-			err := h.services.User.SendTestEmail()
-			if err != nil {
-				fmt.Println(err.Error())
-				context.JSON(http.StatusInternalServerError, map[string]interface{}{
-					"err": err.Error(),
-				})
-			}
-			return
-			context.String(http.StatusOK, "Email sent")
-		})
-		root.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-		httpHandler.Init(root)
-	}
+type Service interface {
+	User
+	Transaction
+	Category
+}
+
+type Handler interface {
+	InitRoutes() *gin.Engine
 }

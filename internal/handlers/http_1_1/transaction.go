@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (h *RequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
+func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 	transaction := api.Group("/transaction", h.isUserAuthenticated)
 	{
 		transaction.GET("", h.getTransactionsList)
@@ -34,13 +34,13 @@ func (h *RequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [get]
-func (h *RequestHandler) getTransactionsList(c *gin.Context) {
+func (h *HTTPRequestHandler) getTransactionsList(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	transactions, err := h.services.Transaction.GetTransactions(userId)
+	transactions, err := h.services.GetTransactions(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transactions list:", err.Error()))
 		return
@@ -63,7 +63,7 @@ func (h *RequestHandler) getTransactionsList(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions/{transactionId} [get]
-func (h *RequestHandler) getTransactionById(c *gin.Context) {
+func (h *HTTPRequestHandler) getTransactionById(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -82,7 +82,7 @@ func (h *RequestHandler) getTransactionById(c *gin.Context) {
 		return
 	}
 
-	transaction, err := h.services.Transaction.GetTransactionById(userId, transId)
+	transaction, err := h.services.GetTransactionById(userId, transId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transaction:", err.Error()))
 		return
@@ -105,7 +105,7 @@ func (h *RequestHandler) getTransactionById(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [post]
-func (h *RequestHandler) createTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) createTransaction(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -121,7 +121,7 @@ func (h *RequestHandler) createTransaction(c *gin.Context) {
 
 	fmt.Printf("%+v\n", input)
 
-	transaction, err := h.services.Transaction.CreateTransaction(userId, &input)
+	transaction, err := h.services.CreateTransaction(userId, &input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while creating transaction: ", err.Error()))
 		return
@@ -132,7 +132,7 @@ func (h *RequestHandler) createTransaction(c *gin.Context) {
 	})
 }
 
-func (h *RequestHandler) updateTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) updateTransaction(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -152,7 +152,7 @@ func (h *RequestHandler) updateTransaction(c *gin.Context) {
 		return
 	}
 
-	transaction, err := h.services.Transaction.UpdateTransaction(userId, transactionId, &input)
+	transaction, err := h.services.UpdateTransaction(userId, transactionId, &input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
 		return
@@ -163,7 +163,7 @@ func (h *RequestHandler) updateTransaction(c *gin.Context) {
 	})
 }
 
-func (h *RequestHandler) deleteTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) deleteTransaction(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -176,7 +176,7 @@ func (h *RequestHandler) deleteTransaction(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Transaction.DeleteTransaction(userId, transactionId); err != nil {
+	if err := h.services.DeleteTransaction(userId, transactionId); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
 		return
 	}
@@ -186,7 +186,7 @@ func (h *RequestHandler) deleteTransaction(c *gin.Context) {
 	})
 }
 
-func (h *RequestHandler) attachCategories(c *gin.Context) {
+func (h *HTTPRequestHandler) attachCategories(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -205,7 +205,7 @@ func (h *RequestHandler) attachCategories(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Transaction.AttachCategory(userId, transactionId, categoryId)
+	err = h.services.AttachCategory(userId, transactionId, categoryId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
 		return
@@ -216,7 +216,7 @@ func (h *RequestHandler) attachCategories(c *gin.Context) {
 	})
 }
 
-func (h *RequestHandler) detachCategories(c *gin.Context) {
+func (h *HTTPRequestHandler) detachCategories(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
@@ -235,7 +235,7 @@ func (h *RequestHandler) detachCategories(c *gin.Context) {
 		return
 	}
 
-	err = h.services.Transaction.DetachCategory(userId, transactionId, categoryId)
+	err = h.services.DetachCategory(userId, transactionId, categoryId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
 		return

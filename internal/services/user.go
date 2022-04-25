@@ -58,7 +58,7 @@ func (s *UserService) Create(user models.User) (string, error) {
 	return s.tokenManager.GenerateToken(id, time.Hour*60)
 }
 
-func (s *UserService) CreateByEmail(email string) (string, error) {
+func (s *UserService) CreateUserByEmail(email string) (string, error) {
 	pass, err := generatePassword.Generate(10, 2, 2, false, false)
 	if err != nil {
 		return "", errors.New("error while generating password")

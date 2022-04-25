@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/http_1_1.signInInput"
+                            "$ref": "#/definitions/http_1_1.SignInInput"
                         }
                     }
                 ],
@@ -97,7 +97,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/http_1_1.signUpInput"
+                            "$ref": "#/definitions/http_1_1.SignUpInput"
                         }
                     }
                 ],
@@ -523,7 +523,7 @@ const docTemplate = `{
         "http_1_1.metaParams": {
             "type": "object"
         },
-        "http_1_1.signInInput": {
+        "http_1_1.SignInInput": {
             "type": "object",
             "required": [
                 "email",
@@ -538,7 +538,7 @@ const docTemplate = `{
                 }
             }
         },
-        "http_1_1.signUpInput": {
+        "http_1_1.SignUpInput": {
             "type": "object",
             "required": [
                 "email",
