@@ -4,6 +4,7 @@ import (
 	_ "github.com/SerjLeo/mlf_backend/docs"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/gin-gonic/gin"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type User interface {
@@ -41,4 +42,8 @@ type Service interface {
 
 type Handler interface {
 	InitRoutes() *gin.Engine
+}
+
+type BotHandler interface {
+	HandleMessage(msg *tgbotapi.Message) error
 }

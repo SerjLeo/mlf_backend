@@ -20,6 +20,7 @@ type (
 		HTTP          HTTPConfig
 		Postgres      PostgresConfig
 		SMTP          SMTPConfig
+		Bot           BotConfig
 	}
 
 	BotConfig struct {

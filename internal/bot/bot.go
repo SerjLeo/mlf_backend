@@ -2,8 +2,7 @@ package bot
 
 import (
 	"github.com/SerjLeo/mlf_backend/internal/config"
-	"github.com/SerjLeo/mlf_backend/internal/handlers"
-	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
+	"github.com/SerjLeo/mlf_backend/internal/handlers/tgBot"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/internal/repository/postgres"
@@ -14,6 +13,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/pkg/email/smtp"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"github.com/SerjLeo/mlf_backend/pkg/templates"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 )
 
@@ -57,11 +57,15 @@ func RunBot(configPath string) {
 		TemplateManager: templateManager,
 		ColorManager:    colors.NewColorWorker(),
 	})
-	var handler handlers.Handler = http_1_1.NewRequestHandler(service)
+	handler := tgBot.NewBotRouter(service)
 
-	server := models.NewServer(cfg.HTTP.Port, handler.InitRoutes())
+	botApi, err := tgbotapi.NewBotAPI(cfg.Bot.Token)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	bot := models.NewTgBot(botApi, handler)
 
-	if err = server.RunServer(); err != nil {
+	if err = bot.Run(); err != nil {
 		log.Fatal(err.Error())
 	}
 }
