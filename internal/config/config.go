@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -14,9 +13,9 @@ const (
 type (
 	Config struct {
 		Env           string
-		JWTSignKey    string
-		HashSalt      string
-		TemplatesPath string
+		JWTSignKey    string `yaml:"jwt_sign_key"`
+		HashSalt      string `yaml:"hash_salt"`
+		TemplatesPath string `yaml:"templates_path"`
 		HTTP          HTTPConfig
 		Postgres      PostgresConfig
 		SMTP          SMTPConfig
@@ -33,7 +32,7 @@ type (
 		Username string
 		Password string
 		DBName   string
-		SSLMode  string
+		SSLMode  string `yaml:"ssl_mode"`
 	}
 
 	HTTPConfig struct {
@@ -61,10 +60,6 @@ func InitConfig(configDir string) (*Config, error) {
 		return nil, err
 	}
 
-	if err := populateEnv(&cfg); err != nil {
-		return nil, err
-	}
-
 	return &cfg, nil
 }
 
@@ -87,48 +82,4 @@ func parseFile(directory, env string) error {
 
 func setDefaults() {
 	viper.SetDefault("http.port", defaultHTTPPort)
-}
-
-func populateEnv(cfg *Config) error {
-	if err := godotenv.Load(); err != nil {
-		return err
-	}
-
-	if dbPass, exists := os.LookupEnv("POSTGRES_PASSWORD"); exists {
-		cfg.Postgres.Password = dbPass
-	}
-
-	if dbUsername, exists := os.LookupEnv("POSTGRES_USER"); exists {
-		cfg.Postgres.Username = dbUsername
-	}
-
-	if dbName, exists := os.LookupEnv("POSTGRES_DB"); exists {
-		cfg.Postgres.DBName = dbName
-	}
-
-	if hashSalt, exists := os.LookupEnv("HASH_SALT"); exists {
-		cfg.HashSalt = hashSalt
-	}
-
-	if signKey, exists := os.LookupEnv("JWT_SIGN_KEY"); exists {
-		cfg.JWTSignKey = signKey
-	}
-
-	if smtpHost, exists := os.LookupEnv("SMTP_HOST"); exists {
-		cfg.SMTP.Host = smtpHost
-	}
-
-	if smtpPort, exists := os.LookupEnv("SMTP_PORT"); exists {
-		cfg.SMTP.Port = smtpPort
-	}
-
-	if smtpPass, exists := os.LookupEnv("SMTP_PASSWORD"); exists {
-		cfg.SMTP.Password = smtpPass
-	}
-
-	if smtpFrom, exists := os.LookupEnv("SMTP_FROM"); exists {
-		cfg.SMTP.From = smtpFrom
-	}
-
-	return nil
 }

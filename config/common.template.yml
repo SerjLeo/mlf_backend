@@ -1,8 +1,20 @@
 http:
   port: 8000
 env: "local"
+hash_salt: salt
+jwt_sign_key: key
+smtp:
+  host: host
+  port: port
+  password: pass
+  from: from
 postgres:
-  host: "localhost"
+  host: "database"
   port: "5432"
-  sslmode: "disable"
-templatesPath: "./templates"
+  password: password
+  username: username
+  dbname: dbname
+  ssl_mode: "disable"
+bot:
+  token: token
+templates_path: "./templates"
