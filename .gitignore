@@ -1,4 +1,4 @@
 .idea/
 .env
-config/database.yml
-config/common.yaml
+./config/database.yml
+./config/common.yaml

@@ -1,8 +1,0 @@
-http:
-  port: 8000
-env: "local"
-postgres:
-  host: "database"
-  port: "5432"
-  sslmode: "disable"
-templatesPath: "./templates"

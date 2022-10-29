@@ -22,6 +22,10 @@ type (
 		SMTP          SMTPConfig
 	}
 
+	BotConfig struct {
+		Token string
+	}
+
 	PostgresConfig struct {
 		Host     string
 		Port     string
