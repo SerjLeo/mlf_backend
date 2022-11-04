@@ -4,7 +4,7 @@ COPY . /github.com/SerjLeo/mlf_backend/
 WORKDIR /github.com/SerjLeo/mlf_backend/
 
 RUN go mod download && go get -u ./...
-RUN go build -o bin/main cmd/app/main.go
+RUN go build -o bin/main cmd/bot/main.go
 
 FROM alpine:latest
 
