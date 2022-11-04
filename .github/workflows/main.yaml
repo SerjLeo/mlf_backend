@@ -130,4 +130,4 @@ jobs:
           script: |
             cd mlf_backend &&
             docker pull ${{ env.IMAGE_NAME }}:latest &&
-            docker-compose up -f docker-compose.prod.yaml --no-deps --force-recreate -d --build server
+            docker-compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server
