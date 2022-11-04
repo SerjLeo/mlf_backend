@@ -57,7 +57,7 @@ jobs:
 
   shipping:
     name: Prepare docker image
-    needs: [build, tests]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
