@@ -1,0 +1,20 @@
+http:
+  port: 8000
+env: "local"
+hash_salt: mlf2022
+jwt_sign_key: mlf2022
+smtp:
+  host: host
+  port: port
+  password: pass
+  from: from
+postgres:
+  host: database
+  port: 8765
+  password: postgres
+  username: admin
+  dbname: mlf
+  ssl_mode: disable
+bot:
+  token: token
+templates_path: "./templates"
