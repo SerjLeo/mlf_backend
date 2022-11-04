@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  database:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8765:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+  server:
+    image: serjleo/mlf_backend-prod:latest
+    depends_on:
+      - database
+    networks:
+      - default
+    ports:
+      - "9500:8000"
+volumes:
+  data:

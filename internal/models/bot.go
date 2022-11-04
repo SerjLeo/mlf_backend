@@ -1,16 +1,19 @@
 package models
 
 import (
-	"github.com/SerjLeo/mlf_backend/internal/handlers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type TgBot struct {
-	botApi  *tgbotapi.BotAPI
-	handler handlers.BotHandler
+type BotHandler interface {
+	HandleMessage(msg *tgbotapi.Message) error
 }
 
-func NewTgBot(botApi *tgbotapi.BotAPI, handlers handlers.BotHandler) *TgBot {
+type TgBot struct {
+	botApi  *tgbotapi.BotAPI
+	handler BotHandler
+}
+
+func NewTgBot(botApi *tgbotapi.BotAPI, handlers BotHandler) *TgBot {
 	return &TgBot{
 		botApi:  botApi,
 		handler: handlers,
