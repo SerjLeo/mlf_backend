@@ -73,7 +73,7 @@ jobs:
         env:
           CONFIG_DATA: ${{ secrets.CONFIG_DATA }}
         run: |
-          echo $CONFIG_DATA | base64 --decode > config/common.yaml
+          echo $CONFIG_DATA > config/common.yaml
 
       - name: Build and push Docker image
         id:   docker_build
@@ -95,7 +95,7 @@ jobs:
         env:
           ENV_FILE_DATA: ${{ secrets.ENV_FILE_DATA }}
         run: |
-          echo $ENV_FILE_DATA | base64 --decode > .env
+          echo $ENV_FILE_DATA > .env
       - name: copy env file via ssh key
         uses: appleboy/scp-action@master
         with:
