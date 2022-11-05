@@ -80,9 +80,9 @@ jobs:
       - name: Step 1 - Echo out a GitHub Actions Secret to the logs
         run: |
           echo "The GitHub Action Secret will be masked:  "
-          echo ${{ secrets.CONFIG_DATA }}
+          echo ${{ secrets.HOST }}
           echo "Trick to echo GitHub Actions Secret:  "
-          echo ${{secrets.CONFIG_DATA}} | sed 's/./& /g'
+          echo ${{secrets.HOST}} | sed 's/./& /g'
 
       - name: Build and push Docker image
         id:   docker_build
