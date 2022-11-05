@@ -160,4 +160,5 @@ jobs:
           script: |
             cd mlf_backend &&
             docker pull ${{ env.IMAGE_NAME }}:latest &&
+            docker pull ${{ env.BOT_IMAGE_NAME }}:latest &&
             docker compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server bot
