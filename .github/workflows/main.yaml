@@ -92,10 +92,8 @@ jobs:
     needs: shipping
     steps:
       - name: write env file
-        env:
-          ENV_FILE_DATA: ${{ secrets.ENV_FILE_DATA }}
         run: |
-          echo $ENV_FILE_DATA > .env
+          echo "${{ secrets.ENV_FILE_DATA }}"> .env
 
       - name: copy env file via ssh key
         uses: appleboy/scp-action@master
