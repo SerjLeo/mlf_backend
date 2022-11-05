@@ -20,5 +20,13 @@ services:
       - default
     ports:
       - "9500:8000"
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    depends_on:
+      - database
+    networks:
+      - default
 volumes:
   data:

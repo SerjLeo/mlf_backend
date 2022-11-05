@@ -21,5 +21,19 @@ func NewTgBot(botApi *tgbotapi.BotAPI, handlers BotHandler) *TgBot {
 }
 
 func (b *TgBot) Run() error {
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	updates := b.botApi.GetUpdatesChan(u)
+
+	for update := range updates {
+		if update.Message != nil {
+			err := b.handler.HandleMessage(update.Message)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }

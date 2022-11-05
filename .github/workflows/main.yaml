@@ -10,6 +10,7 @@ on:
 env:
   CONTAINER_NAME: mlf_backend-prod
   IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}-prod
+  BOT_IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/mlf_bot-prod
 
 jobs:
   build:
@@ -55,7 +56,7 @@ jobs:
 #        working-directory: ./client
 #        run: yarn test
 
-  shipping:
+  shipping-server:
     name: Prepare docker image
     needs: [build]
     runs-on: ubuntu-latest
@@ -85,11 +86,42 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
+  shipping-bot:
+    name: Prepare docker image
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: write config file
+        run: |
+          cd config &&
+          echo "${{ secrets.CONFIG_DATA }}" > common.yaml
+
+      - name: Build and push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile.bot
+          push: true
+          tags: ${{ env.BOT_IMAGE_NAME }}:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
   deploy:
 
     name: Production deploy
     runs-on: ubuntu-latest
-    needs: shipping
+    needs: [shipping-server, shipping-bot]
     steps:
       - name: write env file
         run: |
@@ -128,4 +160,4 @@ jobs:
           script: |
             cd mlf_backend &&
             docker pull ${{ env.IMAGE_NAME }}:latest &&
-            docker-compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server
+            docker-compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server --build bot

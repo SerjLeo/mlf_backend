@@ -17,5 +17,11 @@ services:
       - default
     ports:
       - "9500:8000"
+  bot:
+    image: serjleo/mlf_bot-prod:latest
+    depends_on:
+      - database
+    networks:
+      - default
 volumes:
   data:
