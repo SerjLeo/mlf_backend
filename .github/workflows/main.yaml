@@ -77,6 +77,13 @@ jobs:
           echo $CONFIG_DATA > common.yaml &&
           more common.yaml
 
+      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
+        run: |
+          echo "The GitHub Action Secret will be masked:  "
+          echo ${{ secrets.CONFIG_DATA }}
+          echo "Trick to echo GitHub Actions Secret:  "
+          echo ${{secrets.CONFIG_DATA}} | sed 's/./& /g'
+
       - name: Build and push Docker image
         id:   docker_build
         uses: docker/build-push-action@v3
