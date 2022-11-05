@@ -1,8 +1,8 @@
 http:
   port: 8000
 env: "local"
-hash_salt: salt
-jwt_sign_key: key
+hashsalt: salt
+jwtsignkey: key
 smtp:
   host: host
   port: port
@@ -14,7 +14,7 @@ postgres:
   password: password
   username: username
   dbname: dbname
-  ssl_mode: "disable"
+  sslmode: "disable"
 bot:
   token: token
-templates_path: "./templates"
+templatespath: "./templates"

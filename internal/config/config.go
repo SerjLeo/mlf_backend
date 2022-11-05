@@ -13,9 +13,9 @@ const (
 type (
 	Config struct {
 		Env           string
-		JWTSignKey    string `yaml:"jwt_sign_key"`
-		HashSalt      string `yaml:"hash_salt"`
-		TemplatesPath string `yaml:"templates_path"`
+		JWTSignKey    string `yaml:"jwtsignkey"`
+		HashSalt      string `yaml:"hashsalt"`
+		TemplatesPath string `yaml:"templatespath"`
 		HTTP          HTTPConfig
 		Postgres      PostgresConfig
 		SMTP          SMTPConfig
@@ -27,12 +27,12 @@ type (
 	}
 
 	PostgresConfig struct {
-		Host     string
-		Port     string
-		Username string
-		Password string
-		DBName   string
-		SSLMode  string `yaml:"ssl_mode"`
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+		DBName   string `yaml:"dbname"`
+		SSLMode  string `yaml:"sslmode"`
 	}
 
 	HTTPConfig struct {
