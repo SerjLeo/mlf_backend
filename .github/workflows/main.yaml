@@ -76,6 +76,10 @@ jobs:
           cd config &&
           echo $CONFIG_DATA > common.yaml
 
+      - name: test
+        run: |
+          ls -a && ls config -a
+
       - name: Build and push Docker image
         id:   docker_build
         uses: docker/build-push-action@v3
