@@ -57,7 +57,7 @@ jobs:
 #        run: yarn test
 
   shipping-server:
-    name: Prepare docker image
+    name: Prepare server docker image
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -87,7 +87,7 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   shipping-bot:
-    name: Prepare docker image
+    name: Prepare bot docker image
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:
@@ -160,4 +160,4 @@ jobs:
           script: |
             cd mlf_backend &&
             docker pull ${{ env.IMAGE_NAME }}:latest &&
-            docker-compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server --build bot
+            docker compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server bot

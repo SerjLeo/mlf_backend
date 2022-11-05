@@ -1,7 +1,6 @@
 package tgBot
 
 import (
-	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/handlers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -14,7 +13,11 @@ func NewBotRouter(services handlers.Service) *BotRouter {
 	return &BotRouter{services: services}
 }
 
-func (r *BotRouter) HandleMessage(msg *tgbotapi.Message) error {
-	fmt.Println(msg.Text)
+func (r *BotRouter) HandleMessage(msg *tgbotapi.Message, api *tgbotapi.BotAPI) error {
+
+	newMsg := tgbotapi.NewMessage(msg.Chat.ID, msg.Text)
+	newMsg.ReplyToMessageID = msg.MessageID
+
+	api.Send(newMsg)
 	return nil
 }

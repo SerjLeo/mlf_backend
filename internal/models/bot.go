@@ -5,7 +5,7 @@ import (
 )
 
 type BotHandler interface {
-	HandleMessage(msg *tgbotapi.Message) error
+	HandleMessage(msg *tgbotapi.Message, api *tgbotapi.BotAPI) error
 }
 
 type TgBot struct {
@@ -28,7 +28,7 @@ func (b *TgBot) Run() error {
 
 	for update := range updates {
 		if update.Message != nil {
-			err := b.handler.HandleMessage(update.Message)
+			err := b.handler.HandleMessage(update.Message, b.botApi)
 			if err != nil {
 				return err
 			}
