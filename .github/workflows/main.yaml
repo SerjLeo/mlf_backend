@@ -70,19 +70,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: write config file
-        env:
-          CONFIG_DATA: ${{ secrets.CONFIG_DATA }}
         run: |
           cd config &&
-          echo $CONFIG_DATA > common.yaml &&
+          echo ${{ secrets.CONFIG_DATA }} > common.yaml &&
           more common.yaml
-
-      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
-        run: |
-          echo "The GitHub Action Secret will be masked:  "
-          echo ${{ secrets.HOST }}
-          echo "Trick to echo GitHub Actions Secret:  "
-          echo ${{secrets.HOST}} | sed 's/./& /g'
 
       - name: Build and push Docker image
         id:   docker_build
