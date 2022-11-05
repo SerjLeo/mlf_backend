@@ -72,7 +72,7 @@ jobs:
       - name: write config file
         run: |
           cd config &&
-          echo ${{ secrets.CONFIG_DATA }} > common.yaml &&
+          echo "${{ secrets.CONFIG_DATA }}" > common.yaml &&
           more common.yaml
 
       - name: Build and push Docker image
