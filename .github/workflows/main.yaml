@@ -73,7 +73,8 @@ jobs:
         env:
           CONFIG_DATA: ${{ secrets.CONFIG_DATA }}
         run: |
-          echo $CONFIG_DATA > config/common.yaml
+          cd config &&
+          echo $CONFIG_DATA > common.yaml
 
       - name: Build and push Docker image
         id:   docker_build
