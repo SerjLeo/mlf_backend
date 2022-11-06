@@ -9,5 +9,5 @@ CREATE table users
     user_role    integer              DEFAULT 1,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY  (currency_id) REFERENCES currency (currency_id)
+    FOREIGN KEY (currency_id) REFERENCES currency (currency_id)
 )
