@@ -35,6 +35,8 @@ func Run(configPath string) {
 		Host:           cfg.Postgres.Host,
 		Port:           cfg.Postgres.Port,
 		DBName:         cfg.Postgres.DBName,
+		Password:       cfg.Postgres.Password,
+		User:           cfg.Postgres.Username,
 		MigrationsPath: cfg.MigrationsPath,
 	}
 	err = migrations.Run(migrationsConfig)

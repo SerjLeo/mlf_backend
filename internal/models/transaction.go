@@ -6,6 +6,7 @@ type Transaction struct {
 	Amount          float64    `json:"amount" binding:"required" db:"amount"`
 	Description     string     `json:"description" db:"description" binding:"max=255"`
 	TransactionType bool       `json:"type" db:"type"`
+	Currency        Currency   `json:"currency,omitempty"`
 	CreatedAt       string     `json:"created_at" db:"created_at"`
 	UpdatedAt       string     `json:"updated_at" db:"updated_at"`
 	Categories      []Category `json:"categories,omitempty"`
