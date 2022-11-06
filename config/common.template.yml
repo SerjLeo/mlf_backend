@@ -3,6 +3,7 @@ http:
 env: "local"
 hashsalt: salt
 jwtsignkey: key
+migrationspath: path
 smtp:
   host: host
   port: port

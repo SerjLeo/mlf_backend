@@ -12,14 +12,15 @@ const (
 
 type (
 	Config struct {
-		Env           string
-		JWTSignKey    string `yaml:"jwtsignkey"`
-		HashSalt      string `yaml:"hashsalt"`
-		TemplatesPath string `yaml:"templatespath"`
-		HTTP          HTTPConfig
-		Postgres      PostgresConfig
-		SMTP          SMTPConfig
-		Bot           BotConfig
+		Env            string
+		JWTSignKey     string `yaml:"jwtsignkey"`
+		HashSalt       string `yaml:"hashsalt"`
+		TemplatesPath  string `yaml:"templatespath"`
+		MigrationsPath string `yaml:"migrationspath"`
+		HTTP           HTTPConfig
+		Postgres       PostgresConfig
+		SMTP           SMTPConfig
+		Bot            BotConfig
 	}
 
 	BotConfig struct {

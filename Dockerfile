@@ -12,6 +12,7 @@ WORKDIR /root/
 
 COPY --from=0 /github.com/SerjLeo/mlf_backend/bin/main .
 COPY --from=0 /github.com/SerjLeo/mlf_backend/config/ ./config
+COPY --from=0 /github.com/SerjLeo/mlf_backend/migrations/ ./migrations
 COPY --from=0 /github.com/SerjLeo/mlf_backend/templates/ ./templates
 
 EXPOSE 8000 9500

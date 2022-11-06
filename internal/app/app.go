@@ -4,6 +4,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/config"
 	"github.com/SerjLeo/mlf_backend/internal/handlers"
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
+	"github.com/SerjLeo/mlf_backend/internal/migrations"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/internal/repository/postgres"
@@ -28,6 +29,17 @@ func Run(configPath string) {
 	if err != nil {
 		log.Fatal(err.Error())
 		return
+	}
+
+	migrationsConfig := migrations.MigrationConfig{
+		Host:           cfg.Postgres.Host,
+		Port:           cfg.Postgres.Port,
+		DBName:         cfg.Postgres.DBName,
+		MigrationsPath: cfg.MigrationsPath,
+	}
+	err = migrations.Run(migrationsConfig)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	tokenManager, err := auth.NewTokenManager(cfg.JWTSignKey)
