@@ -150,7 +150,7 @@ jobs:
           source: "docker-compose.prod.yaml"
           target: "mlf_backend"
 
-      - name: Executing remote command
+      - name: Build and run app with remote command
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -162,3 +162,32 @@ jobs:
             docker pull ${{ env.IMAGE_NAME }}:latest &&
             docker pull ${{ env.BOT_IMAGE_NAME }}:latest &&
             docker compose --file docker-compose.prod.yaml up --no-deps --force-recreate -d --build server bot
+
+  migrations:
+    name: Run server migrations
+    runs-on: ubuntu-latest
+    needs: [ deploy ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: copy migrations folder via ssh key
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: "migrations"
+          target: "mlf_backend/migrations"
+
+      - name: Run migrations with remote command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PORT: ${{ secrets.PORT }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: |
+            cd mlf_backend &&
+            migrate -path ./migrations -database postgresql://${{ secrets.POSTGRES_USER }}:{${{ secrets.POSTGRES_PASS }}@${{ secrets.POSTGRES_HOST }}:${{ secrets.POSTGRES_PORT }}/${{ secrets.POSTGRES_DBNAME }}?sslmode=disable up
