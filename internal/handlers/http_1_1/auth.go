@@ -134,6 +134,16 @@ func (h *HTTPRequestHandler) userRestorePassword(c *gin.Context) {
 
 }
 
+// @Summary Check user token and return user info
+// @Tags auth
+// @Description check token and return info if correct
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/check [get]
 func (h *HTTPRequestHandler) userCheckToken(c *gin.Context) {
 	h.isUserAuthenticated(c)
 
@@ -145,9 +155,16 @@ func (h *HTTPRequestHandler) userCheckToken(c *gin.Context) {
 
 	user, err := h.services.GetUserProfile(userId)
 	if err != nil {
+		fmt.Println(err.Error())
 		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{Data: userResponse{Name: user.Name, Email: user.Email}})
+	c.JSON(http.StatusOK, dataResponse{
+		Data: userResponse{
+			Name:     user.Name,
+			Email:    user.Email,
+			Currency: user.Currency,
+		},
+	})
 }

@@ -22,8 +22,9 @@ type errorResponse struct {
 }
 
 type userResponse struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Currency string `json:"currency"`
 }
 
 func newErrorResponse(c *gin.Context, statusCode int, message string) {

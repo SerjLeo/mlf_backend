@@ -13,6 +13,7 @@ const (
 	categoryTable            = "category"
 	transactionTable         = "transaction"
 	transactionCategoryTable = "transaction_category"
+	currencyTable            = "currency"
 	defaultPerPage           = 20
 )
 

@@ -12,11 +12,12 @@ type User interface {
 	SignIn(email, password string) (string, error)
 	CheckUserToken(token string) (int, error)
 	GetUserProfile(userId int) (models.User, error)
+	UpdateUserProfile(userId int, input models.User) (models.User, error)
 	SendTestEmail() error
 }
 
 type Transaction interface {
-	CreateTransaction(userId int, input *models.CreateTransactionInput) (models.Transaction, error)
+	CreateTransaction(userId int, input *models.CreateTransactionInput) (*models.Transaction, error)
 	UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error)
 	DeleteTransaction(userId, transactionId int) error
 	GetTransactions(userId int) ([]models.Transaction, error)

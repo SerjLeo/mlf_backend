@@ -10,6 +10,7 @@ import (
 	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"github.com/SerjLeo/mlf_backend/pkg/templates"
+	"github.com/imdario/mergo"
 	generatePassword "github.com/sethvargo/go-password/password"
 	"time"
 )
@@ -109,6 +110,21 @@ func (s *UserService) CheckUserToken(token string) (int, error) {
 }
 
 func (s *UserService) GetUserProfile(userId int) (models.User, error) {
+	return s.repo.User.GetUserById(userId)
+}
+
+func (s *UserService) UpdateUserProfile(userId int, input models.User) (models.User, error) {
+	oldProfile, err := s.GetUserProfile(userId)
+	if err != nil {
+		return models.User{}, err
+	}
+	mergo.Merge(&input, oldProfile)
+	input.UpdatedAt = time.Now().Format(time.RFC3339)
+
+	err = s.repo.User.UpdateUser(userId, input)
+	if err != nil {
+		return models.User{}, err
+	}
 	return s.repo.User.GetUserById(userId)
 }
 

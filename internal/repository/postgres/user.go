@@ -38,7 +38,7 @@ func (r *UserPostgres) Create(user models.User) (int, error) {
 func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
 	var user models.User
 	query := fmt.Sprintf(`
-		SELECT * FROM %s
+		SELECT user_id, name, email FROM %s
 		WHERE email=$1 AND hashed_pass=$2
 	`, userTable)
 
@@ -53,14 +53,29 @@ func (r *UserPostgres) GetUser(email, passHash string) (models.User, error) {
 func (r *UserPostgres) GetUserById(userId int) (models.User, error) {
 	var user models.User
 	query := fmt.Sprintf(`
-		SELECT * FROM %s
+		SELECT email, %s.name, %s.name as currency FROM %s INNER JOIN %s ON %s.currency_id=%s.currency_id
 		WHERE user_id=$1
-	`, userTable)
+	`, userTable, currencyTable, userTable, currencyTable, userTable, currencyTable)
 
 	err := r.db.Get(&user, query, userId)
 	if err != nil && strings.Contains(err.Error(), "no rows") {
-		return user, models.EmailOrPassNotMatch
+		return user, models.UserDoesntExist
 	}
 
 	return user, err
+}
+
+func (r *UserPostgres) UpdateUser(userId int, input models.User) error {
+
+	query := fmt.Sprintf(`
+		UPDATE %s
+		SET name = $1, currency = $2, updated_at = $3
+		WHERE user_id = $4
+		RETURNING *
+	`, userTable)
+
+	row := r.db.QueryRow(query, input.Name, input.Currency, input.UpdatedAt, userId)
+	err := row.Scan()
+
+	return err
 }

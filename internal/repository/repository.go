@@ -10,11 +10,12 @@ type User interface {
 	Create(user models.User) (int, error)
 	GetUser(email, passHash string) (models.User, error)
 	GetUserById(userId int) (models.User, error)
+	UpdateUser(userId int, input models.User) error
 }
 
 type Transaction interface {
-	CreateTransaction(userId int, input models.CreateTransactionInput) (models.Transaction, error)
-	CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (models.Transaction, error)
+	CreateTransaction(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
+	CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
 	UpdateTransaction(userId, transactionId int, input models.Transaction) (models.Transaction, error)
 	DeleteTransaction(userId, transactionId int) error
 	GetTransactions(userId int) ([]models.Transaction, error)
@@ -32,10 +33,17 @@ type Category interface {
 	DeleteCategory(userId, categoryId int) error
 }
 
+type Currency interface {
+	GetCurrencyList() ([]models.Currency, error)
+	GetCurrencyById(currencyId int) (models.Currency, error)
+	GetUsersCurrency(userId int) (*models.Currency, error)
+}
+
 type Repository struct {
 	User
 	Transaction
 	Category
+	Currency
 }
 
 func NewPostgresRepository(db *sqlx.DB) *Repository {
@@ -43,5 +51,6 @@ func NewPostgresRepository(db *sqlx.DB) *Repository {
 		User:        postgres.NewUserPostgres(db),
 		Category:    postgres.NewCategoryPostgres(db),
 		Transaction: postgres.NewTransactionPostgres(db),
+		Currency:    postgres.NewCurrencyPostgres(db),
 	}
 }

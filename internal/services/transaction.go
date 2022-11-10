@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/imdario/mergo"
@@ -15,7 +16,15 @@ func NewTransactionService(repo *repository.Repository) *TransactionService {
 	return &TransactionService{repo: repo}
 }
 
-func (s *TransactionService) CreateTransaction(userId int, input *models.CreateTransactionInput) (models.Transaction, error) {
+func (s *TransactionService) CreateTransaction(userId int, input *models.CreateTransactionInput) (*models.Transaction, error) {
+	if input.CurrencyId == 0 {
+		currency, err := s.repo.Currency.GetUsersCurrency(userId)
+		fmt.Printf("%+v", currency)
+		if err != nil {
+			return nil, err
+		}
+		input.CurrencyId = currency.CurrencyId
+	}
 	return s.repo.Transaction.CreateTransactionWithCategories(userId, *input)
 }
 
