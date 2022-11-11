@@ -1,6 +1,5 @@
 CREATE table account_balance
 (
-    account_balance_id serial PRIMARY KEY,
     CONSTRAINT account_balance_id PRIMARY KEY (account_id, balance_id),
     account_id         integer,
     balance_id         integer,
