@@ -65,17 +65,33 @@ func (r *UserPostgres) GetUserById(userId int) (models.User, error) {
 	return user, err
 }
 
+func (r *UserPostgres) GetFullUserById(userId int) (models.User, error) {
+	var user models.User
+	query := fmt.Sprintf(`
+		SELECT * FROM %s
+		WHERE user_id=$1
+	`, userTable)
+
+	err := r.db.Get(&user, query, userId)
+	if err != nil && strings.Contains(err.Error(), "no rows") {
+		return user, models.UserDoesntExist
+	}
+
+	return user, err
+}
+
 func (r *UserPostgres) UpdateUser(userId int, input models.User) error {
+
+	fmt.Printf("%+v", input)
 
 	query := fmt.Sprintf(`
 		UPDATE %s
-		SET name = $1, currency = $2, updated_at = $3
+		SET name = $1, currency_id = $2, updated_at = $3
 		WHERE user_id = $4
 		RETURNING *
 	`, userTable)
 
-	row := r.db.QueryRow(query, input.Name, input.Currency, input.UpdatedAt, userId)
-	err := row.Scan()
+	_, err := r.db.Exec(query, input.Name, input.CurrencyId, input.UpdatedAt, userId)
 
 	return err
 }

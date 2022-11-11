@@ -14,8 +14,13 @@ const (
 func (h *HTTPRequestHandler) initUserRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/user")
 	{
-		auth.POST(EditProfileRoute, h.userEditProfile)
+		auth.PUT(EditProfileRoute, h.userEditProfile)
 	}
+}
+
+type UserUpdateInput struct {
+	Name       string `json:"name"`
+	CurrencyId int    `json:"currency_id"`
 }
 
 // @Summary Edit profile
@@ -37,14 +42,19 @@ func (h *HTTPRequestHandler) userEditProfile(c *gin.Context) {
 		return
 	}
 
-	var input models.User
+	var input UserUpdateInput
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	user, err := h.services.UpdateUserProfile(userId, input)
+	userInput := models.User{
+		CurrencyId: input.CurrencyId,
+		Name:       input.Name,
+	}
+
+	user, err := h.services.UpdateUserProfile(userId, userInput)
 	if err != nil {
 		fmt.Println(err.Error())
 		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")

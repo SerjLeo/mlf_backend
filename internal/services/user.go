@@ -114,7 +114,7 @@ func (s *UserService) GetUserProfile(userId int) (models.User, error) {
 }
 
 func (s *UserService) UpdateUserProfile(userId int, input models.User) (models.User, error) {
-	oldProfile, err := s.GetUserProfile(userId)
+	oldProfile, err := s.repo.User.GetFullUserById(userId)
 	if err != nil {
 		return models.User{}, err
 	}

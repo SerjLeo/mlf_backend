@@ -10,6 +10,7 @@ type User interface {
 	Create(user models.User) (int, error)
 	GetUser(email, passHash string) (models.User, error)
 	GetUserById(userId int) (models.User, error)
+	GetFullUserById(userId int) (models.User, error)
 	UpdateUser(userId int, input models.User) error
 }
 
