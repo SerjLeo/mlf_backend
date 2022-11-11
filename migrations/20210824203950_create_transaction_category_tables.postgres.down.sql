@@ -1,1 +1,0 @@
-DROP table transaction_category
