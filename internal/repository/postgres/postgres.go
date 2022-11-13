@@ -10,6 +10,10 @@ import (
 
 const (
 	userTable                = "users"
+	profileTable             = "profile"
+	accountTable             = "account"
+	balanceTable             = "balance"
+	accountBalanceTable      = "account_balance"
 	categoryTable            = "category"
 	transactionTable         = "transaction"
 	transactionCategoryTable = "transaction_category"

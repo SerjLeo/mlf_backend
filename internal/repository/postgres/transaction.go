@@ -25,7 +25,7 @@ func (r *TransactionPostgres) UpdateTransaction(userId, transactionId int, input
 	transaction := models.Transaction{}
 
 	row := r.db.QueryRow(query, input.Amount, input.Description, input.TransactionType, input.UpdatedAt, userId, transactionId)
-	err := row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
+	err := row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
 	return transaction, err
 }
 
@@ -74,7 +74,7 @@ func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input 
 	`, transactionTable)
 	transaction := models.Transaction{}
 	row := tx.QueryRow(createTransactionQuery, input.Amount, input.Description, input.TransactionType, userId, input.CurrencyId)
-	err = row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
+	err = row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -87,7 +87,7 @@ func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input 
 		`, transactionCategoryTable)
 
 		for i := 0; i < len(input.CategoriesIds); i++ {
-			_, err := tx.Exec(createCategoryLinkQuery, userId, input.CategoriesIds[i], transaction.TransactionId)
+			_, err := tx.Exec(createCategoryLinkQuery, userId, input.CategoriesIds[i], transaction.Id)
 			if err != nil {
 				tx.Rollback()
 				return nil, err
@@ -100,7 +100,7 @@ func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input 
 		WHERE %s.user_id=$1 AND transaction_id=$2
 	`, categoryTable, transactionCategoryTable, categoryTable, transactionCategoryTable, categoryTable, categoryTable)
 	categories := []models.Category{}
-	err = tx.Select(&categories, getTransactionCategoriesQuery, userId, transaction.TransactionId)
+	err = tx.Select(&categories, getTransactionCategoriesQuery, userId, transaction.Id)
 	if err != nil {
 		tx.Rollback()
 		return &transaction, err
@@ -120,7 +120,7 @@ func (r *TransactionPostgres) CreateTransaction(userId int, input models.CreateT
 	transaction := models.Transaction{}
 
 	row := r.db.QueryRow(query, input.Amount, input.Description, input.TransactionType, userId, input.CurrencyId)
-	err := row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
+	err := row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
 	return &transaction, err
 }
 

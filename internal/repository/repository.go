@@ -1,57 +1,18 @@
 package repository
 
 import (
-	"github.com/SerjLeo/mlf_backend/internal/models"
 	postgres "github.com/SerjLeo/mlf_backend/internal/repository/postgres"
+	"github.com/SerjLeo/mlf_backend/internal/services"
 	"github.com/jmoiron/sqlx"
 )
 
-type User interface {
-	Create(user models.User) (int, error)
-	GetUser(email, passHash string) (models.User, error)
-	GetUserById(userId int) (models.User, error)
-	GetFullUserById(userId int) (models.User, error)
-	UpdateUser(userId int, input models.User) error
-}
-
-type Transaction interface {
-	CreateTransaction(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
-	CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
-	UpdateTransaction(userId, transactionId int, input models.Transaction) (models.Transaction, error)
-	DeleteTransaction(userId, transactionId int) error
-	GetTransactions(userId int) ([]models.Transaction, error)
-	GetTransactionById(userId, transactionId int) (models.Transaction, error)
-	AttachCategory(userId, transactionId int, categoryId int) error
-	DetachCategory(userId, transactionId int, categoryId int) error
-	GetTransactionCategories(userId, transactionId int) ([]models.Category, error)
-}
-
-type Category interface {
-	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
-	GetUserCategoryById(userId, categoryId int) (models.Category, error)
-	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
-	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)
-	DeleteCategory(userId, categoryId int) error
-}
-
-type Currency interface {
-	GetCurrencyList() ([]models.Currency, error)
-	GetCurrencyById(currencyId int) (models.Currency, error)
-	GetUsersCurrency(userId int) (*models.Currency, error)
-}
-
-type Repository struct {
-	User
-	Transaction
-	Category
-	Currency
-}
-
-func NewPostgresRepository(db *sqlx.DB) *Repository {
-	return &Repository{
-		User:        postgres.NewUserPostgres(db),
-		Category:    postgres.NewCategoryPostgres(db),
-		Transaction: postgres.NewTransactionPostgres(db),
-		Currency:    postgres.NewCurrencyPostgres(db),
+func NewPostgresRepository(db *sqlx.DB) *services.Repository {
+	return &services.Repository{
+		UserRepo:        postgres.NewUserPostgres(db),
+		CategoryRepo:    postgres.NewCategoryPostgres(db),
+		TransactionRepo: postgres.NewTransactionPostgres(db),
+		CurrencyRepo:    postgres.NewCurrencyPostgres(db),
+		AccountRepo:     postgres.NewAccountPostgres(db),
+		ProfileRepo:     postgres.NewProfilePostgres(db),
 	}
 }
