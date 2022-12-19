@@ -81,6 +81,7 @@ type AppService struct {
 	CategoryService
 	UserService
 	TransactionService
+	ProfileService
 }
 
 func NewService(deps ServiceDependencies) *AppService {
@@ -88,5 +89,6 @@ func NewService(deps ServiceDependencies) *AppService {
 		*NewCategoryService(deps.Repo, deps.ColorManager),
 		*NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager, deps.TemplateManager, deps.Cache),
 		*NewTransactionService(deps.Repo),
+		*NewProfileService(deps.Repo),
 	}
 }

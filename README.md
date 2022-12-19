@@ -12,9 +12,13 @@ Postgres 14+ is used
 
 Migrations located in _migrations_ folder
 
-To run migrations you can use [go-migrate](https://github.com/golang-migrate/migrate). After installation use command bellow in root directory:
+To run migrations manually you can use [go-migrate](https://github.com/golang-migrate/migrate). After installation use command bellow in root directory:
 
 `migrate -path ./migrations -database postgresql://{username}:{password}@{host}:{port}/{dbname}?sslmode=disable up`
+
+To run database container:
+
+`docker run --name mlf-db -e POSTGRES_USER=user -e POSTGRES_DB=db -e POSTGRES_PASSWORD=pass -d postgres`
 
 ## Run project with Docker Compose
 
