@@ -6,17 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type User interface {
-	Create(user models.User) (string, error)
+type UserService interface {
+	Create(user *models.CreateUserInput) (string, error)
 	CreateUserByEmail(email string) (string, error)
 	SignIn(email, password string) (string, error)
 	CheckUserToken(token string) (int, error)
-	GetUserProfile(userId int) (models.User, error)
 	SendTestEmail() error
 }
 
-type Transaction interface {
-	CreateTransaction(userId int, input *models.CreateTransactionInput) (models.Transaction, error)
+type TransactionService interface {
+	CreateTransaction(userId int, input *models.CreateTransactionInput) (*models.Transaction, error)
 	UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error)
 	DeleteTransaction(userId, transactionId int) error
 	GetTransactions(userId int) ([]models.Transaction, error)
@@ -25,7 +24,7 @@ type Transaction interface {
 	DetachCategory(userId int, transactionId, categoryId int) error
 }
 
-type Category interface {
+type CategoryService interface {
 	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
 	GetUserCategoryById(userId, categoryId int) (models.Category, error)
 	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
@@ -33,10 +32,15 @@ type Category interface {
 	DeleteCategory(userId, categoryId int) error
 }
 
+type ProfileService interface {
+	GetUserProfile(userId int) (*models.FullProfile, error)
+}
+
 type Service interface {
-	User
-	Transaction
-	Category
+	UserService
+	TransactionService
+	CategoryService
+	ProfileService
 }
 
 type Handler interface {

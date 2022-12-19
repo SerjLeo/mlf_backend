@@ -25,7 +25,7 @@ func (r *TransactionPostgres) UpdateTransaction(userId, transactionId int, input
 	transaction := models.Transaction{}
 
 	row := r.db.QueryRow(query, input.Amount, input.Description, input.TransactionType, input.UpdatedAt, userId, transactionId)
-	err := row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
+	err := row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
 	return transaction, err
 }
 
@@ -41,9 +41,10 @@ func (r *TransactionPostgres) DeleteTransaction(userId, transactionId int) error
 
 func (r *TransactionPostgres) GetTransactions(userId int) ([]models.Transaction, error) {
 	query := fmt.Sprintf(`
-		SELECT * FROM %s
+		SELECT transaction_id, amount, description, type, %s.name as currency, %s.created_at
+		FROM %s INNER JOIN %s ON %s.currency_id=%s.currency_id
 		WHERE user_id=$1
-	`, transactionTable)
+	`, currencyTable, transactionTable, transactionTable, currencyTable, transactionTable, currencyTable)
 	transactions := []models.Transaction{}
 	err := r.db.Select(&transactions, query, userId)
 	return transactions, err
@@ -51,31 +52,32 @@ func (r *TransactionPostgres) GetTransactions(userId int) ([]models.Transaction,
 
 func (r *TransactionPostgres) GetTransactionById(userId, transactionId int) (models.Transaction, error) {
 	query := fmt.Sprintf(`
-		SELECT * FROM %s
+		SELECT transaction_id, amount, description, type, %s.name as currency, %s.created_at
+		FROM %s INNER JOIN %s ON %s.currency_id=%s.currency_id
 		WHERE user_id=$1 AND transaction_id=$2
-	`, transactionTable)
+	`, currencyTable, transactionTable, transactionTable, currencyTable, transactionTable, currencyTable)
 	transaction := models.Transaction{}
 	err := r.db.Get(&transaction, query, userId, transactionId)
 	return transaction, err
 }
 
-func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (models.Transaction, error) {
+func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (*models.Transaction, error) {
 	tx, err := r.db.Beginx()
 	if err != nil {
-		return models.Transaction{}, err
+		return nil, err
 	}
 
 	createTransactionQuery := fmt.Sprintf(`
-		INSERT INTO %s (amount, description, type, user_id)
-		VALUES($1, $2, $3, $4)
-		RETURNING *
+		INSERT INTO %s (amount, description, type, user_id, currency_id)
+		VALUES($1, $2, $3, $4, $5)
+		RETURNING transaction_id, user_id, amount, description, type, currency_id, created_at, updated_at
 	`, transactionTable)
 	transaction := models.Transaction{}
-	row := tx.QueryRow(createTransactionQuery, input.Amount, input.Description, input.TransactionType, userId)
-	err = row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
+	row := tx.QueryRow(createTransactionQuery, input.Amount, input.Description, input.TransactionType, userId, input.CurrencyId)
+	err = row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
 	if err != nil {
 		tx.Rollback()
-		return transaction, err
+		return nil, err
 	}
 
 	if len(input.CategoriesIds) != 0 {
@@ -85,10 +87,10 @@ func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input 
 		`, transactionCategoryTable)
 
 		for i := 0; i < len(input.CategoriesIds); i++ {
-			_, err := tx.Exec(createCategoryLinkQuery, userId, input.CategoriesIds[i], transaction.TransactionId)
+			_, err := tx.Exec(createCategoryLinkQuery, userId, input.CategoriesIds[i], transaction.Id)
 			if err != nil {
 				tx.Rollback()
-				return transaction, err
+				return nil, err
 			}
 		}
 	}
@@ -98,28 +100,28 @@ func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input 
 		WHERE %s.user_id=$1 AND transaction_id=$2
 	`, categoryTable, transactionCategoryTable, categoryTable, transactionCategoryTable, categoryTable, categoryTable)
 	categories := []models.Category{}
-	err = tx.Select(&categories, getTransactionCategoriesQuery, userId, transaction.TransactionId)
+	err = tx.Select(&categories, getTransactionCategoriesQuery, userId, transaction.Id)
 	if err != nil {
 		tx.Rollback()
-		return transaction, err
+		return &transaction, err
 	}
 	transaction.Categories = categories
 
 	tx.Commit()
-	return transaction, nil
+	return &transaction, nil
 }
 
-func (r *TransactionPostgres) CreateTransaction(userId int, input models.CreateTransactionInput) (models.Transaction, error) {
+func (r *TransactionPostgres) CreateTransaction(userId int, input models.CreateTransactionInput) (*models.Transaction, error) {
 	query := fmt.Sprintf(`
-		INSERT INTO %s (amount, description, type, user_id)
-		VALUES($1, $2, $3, $4)
-		RETURNING *
+		INSERT INTO %s (amount, description, type, user_id, currency_id)
+		VALUES($1, $2, $3, $4, $5)
+		RETURNING transaction_id, user_id, amount, description, type, currency_id, created_at, updated_at
 	`, transactionTable)
 	transaction := models.Transaction{}
 
-	row := r.db.QueryRow(query, input.Amount, input.Description, input.TransactionType, userId)
-	err := row.Scan(&transaction.TransactionId, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CreatedAt, &transaction.UpdatedAt)
-	return transaction, err
+	row := r.db.QueryRow(query, input.Amount, input.Description, input.TransactionType, userId, input.CurrencyId)
+	err := row.Scan(&transaction.Id, &transaction.UserId, &transaction.Amount, &transaction.Description, &transaction.TransactionType, &transaction.CurrencyId, &transaction.CreatedAt, &transaction.UpdatedAt)
+	return &transaction, err
 }
 
 func (r *TransactionPostgres) AttachCategory(userId, transactionId int, categoryId int) error {

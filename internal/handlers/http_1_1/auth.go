@@ -84,10 +84,10 @@ func (h *HTTPRequestHandler) userSignUp(c *gin.Context) {
 		return
 	}
 
-	token, err := h.services.Create(models.User{
+	token, err := h.services.Create(&models.CreateUserInput{
 		Email:    input.Email,
-		Name:     input.Name,
 		Password: input.Password,
+		Name:     input.Name,
 	})
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
@@ -134,20 +134,26 @@ func (h *HTTPRequestHandler) userRestorePassword(c *gin.Context) {
 
 }
 
+// @Summary Check user token and return user info
+// @Tags auth
+// @Description check token and return info if correct
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/check [get]
 func (h *HTTPRequestHandler) userCheckToken(c *gin.Context) {
 	h.isUserAuthenticated(c)
 
-	userId, err := h.getUserId(c)
+	_, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "error while checking authorization")
 		return
 	}
 
-	user, err := h.services.GetUserProfile(userId)
-	if err != nil {
-		newErrorResponse(c, http.StatusNotFound, "user profile doesn't exists")
-		return
-	}
-
-	c.JSON(http.StatusOK, dataResponse{Data: userResponse{Name: user.Name, Email: user.Email}})
+	c.JSON(http.StatusOK, dataResponse{
+		Data: true,
+	})
 }

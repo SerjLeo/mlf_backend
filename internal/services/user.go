@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
-	"github.com/SerjLeo/mlf_backend/internal/repository"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/SerjLeo/mlf_backend/pkg/cache"
 	"github.com/SerjLeo/mlf_backend/pkg/email"
@@ -15,7 +14,7 @@ import (
 )
 
 type UserService struct {
-	repo            *repository.Repository
+	repo            *Repository
 	tokenManager    auth.TokenManager
 	hashGenerator   password.HashGenerator
 	mailManager     email.MailManager
@@ -24,7 +23,7 @@ type UserService struct {
 }
 
 func NewUserService(
-	repo *repository.Repository,
+	repo *Repository,
 	tokenManager auth.TokenManager,
 	hashGenerator password.HashGenerator,
 	mailManager email.MailManager,
@@ -41,14 +40,14 @@ func NewUserService(
 	}
 }
 
-func (s *UserService) Create(user models.User) (string, error) {
-	hashedPassword, err := s.hashGenerator.EncodeString(user.Password)
+func (s *UserService) Create(input *models.CreateUserInput) (string, error) {
+	hashedPassword, err := s.hashGenerator.EncodeString(input.Password)
 	if err != nil {
 		return "", err
 	}
-	user.Password = hashedPassword
+	input.Password = hashedPassword
 
-	id, err := s.repo.User.Create(user)
+	id, err := s.repo.UserRepo.CreateUser(input)
 	if err != nil {
 		return "", err
 	}
@@ -69,12 +68,12 @@ func (s *UserService) CreateUserByEmail(email string) (string, error) {
 		return "", err
 	}
 
-	user := models.User{
+	input := models.CreateUserInput{
 		Email:    email,
 		Password: passHash,
 	}
 
-	id, err := s.repo.User.Create(user)
+	id, err := s.repo.UserRepo.CreateUser(&input)
 	if err != nil {
 		return "", err
 	}
@@ -91,12 +90,12 @@ func (s *UserService) SignIn(email, password string) (string, error) {
 		return "", err
 	}
 
-	user, err := s.repo.User.GetUser(email, passHash)
+	user, err := s.repo.UserRepo.AuthenticateUser(email, passHash)
 	if err != nil {
 		return "", err
 	}
 
-	return s.tokenManager.GenerateToken(user.UserId, time.Hour*60)
+	return s.tokenManager.GenerateToken(user.Id, time.Hour*60)
 }
 
 func (s *UserService) CheckUserToken(token string) (int, error) {
@@ -106,10 +105,6 @@ func (s *UserService) CheckUserToken(token string) (int, error) {
 	}
 
 	return claims.UserId, nil
-}
-
-func (s *UserService) GetUserProfile(userId int) (models.User, error) {
-	return s.repo.User.GetUserById(userId)
 }
 
 func (s *UserService) SendTestEmail() error {

@@ -49,7 +49,7 @@ func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategor
 	category := models.Category{}
 
 	row := r.db.QueryRow(query, input.Name, input.Color, userId)
-	err := row.Scan(&category.CategoryId, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
+	err := row.Scan(&category.Id, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
 	return category, err
 }
 
@@ -64,7 +64,7 @@ func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input models.C
 	category := models.Category{}
 
 	row := r.db.QueryRow(query, input.Name, input.Color, input.UpdatedAt, userId, categoryId)
-	err := row.Scan(&category.CategoryId, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
+	err := row.Scan(&category.Id, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
 	return category, err
 }
 
