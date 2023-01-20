@@ -6,3 +6,12 @@ type Currency struct {
 	CreatedAt  string `json:"created_at" db:"created_at"`
 	UpdatedAt  string `json:"updated_at" db:"updated_at"`
 }
+
+type CurrencyType int8
+
+const (
+	USD CurrencyType = 1
+	EUR              = 2
+	TL               = 3
+	RUB              = 4
+)

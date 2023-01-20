@@ -40,14 +40,24 @@ func (r *UserPostgres) CreateUser(input *models.CreateUserInput) (int, error) {
 	}
 
 	query = fmt.Sprintf(`
-		INSERT INTO %s (user_id, name)
-		VALUES ($1, $2)
+		INSERT INTO %s (user_id, currency_id, name)
+		VALUES ($1, $2, $3)
 	`, profileTable)
 
-	_, err = tx.Query(query, id, input.Name)
+	rows, err := tx.Query(query, id, models.USD, input.Name)
 	if err != nil {
 		tx.Rollback()
 		return id, err
+	}
+	if err = rows.Close(); err != nil {
+		tx.Rollback()
+		return id, err
+	}
+
+	err = createInitialAccount(tx, id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
 	}
 
 	tx.Commit()
@@ -55,10 +65,44 @@ func (r *UserPostgres) CreateUser(input *models.CreateUserInput) (int, error) {
 	return id, nil
 }
 
+func createInitialAccount(tx *sqlx.Tx, userId int) error {
+	var accountId int
+	query := fmt.Sprintf(`
+		INSERT INTO %s (user_id, is_default, name)
+		VALUES ($1, true, 'Main')
+		RETURNING account_id
+	`, accountTable)
+
+	row := tx.QueryRow(query, userId)
+	if err := row.Scan(&accountId); err != nil {
+		return err
+	}
+
+	var balanceId int
+	query = fmt.Sprintf(`
+		INSERT INTO %s (user_id, currency_id)
+		VALUES ($1, %d)
+		RETURNING balance_id
+	`, balanceTable, models.USD)
+
+	row = tx.QueryRow(query, userId)
+	if err := row.Scan(&balanceId); err != nil {
+		return err
+	}
+
+	query = fmt.Sprintf(`
+		INSERT INTO %s (account_id, balance_id)
+		VALUES ($1, $2)
+	`, accountBalanceTable)
+
+	_, err := tx.Exec(query, accountId, balanceId)
+	return err
+}
+
 func (r *UserPostgres) AuthenticateUser(email, passHash string) (*models.User, error) {
 	var user models.User
 	query := fmt.Sprintf(`
-		SELECT user_id, name, email FROM %s
+		SELECT user_id, email FROM %s
 		WHERE email=$1 AND hashed_pass=$2
 	`, userTable)
 

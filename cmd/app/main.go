@@ -9,7 +9,7 @@ const configPath = "config"
 // @description API for MLF application
 // @license.name MIT
 
-// @host localhost:8000
+// @host localhost:9001
 // @BasePath /api
 
 // @securityDefinitions.apikey ApiKeyAuth

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
-	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -75,7 +74,7 @@ func TestSignInHandler(t *testing.T) {
 func TestSignUpHandler(t *testing.T) {
 	router, mock := SetupTest()
 
-	mockUser := models.User{
+	mockUser := http_1_1.SignUpInput{
 		Name:     "username",
 		Email:    "example@mail.com",
 		Password: "password",
@@ -133,7 +132,7 @@ func TestSignUpHandler(t *testing.T) {
 			w := PerformRequest(router, "POST", fmt.Sprintf("/api/auth%s", http_1_1.SignUpRoute), tt.payload)
 
 			assert.Equal(t, w.Code, tt.expectedStatus)
-			mock.AssertNotCalled(t, "Create", models.User{
+			mock.AssertNotCalled(t, "Create", http_1_1.SignUpInput{
 				Email:    tt.payload.Email,
 				Name:     tt.payload.Name,
 				Password: tt.payload.Password,

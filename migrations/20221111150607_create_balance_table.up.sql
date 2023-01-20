@@ -1,7 +1,7 @@
 CREATE table balance
 (
     balance_id  serial PRIMARY KEY,
-    value       DECIMAL(19, 4),
+    amount      DECIMAL(19, 4),
     currency_id integer,
     user_id     integer,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),

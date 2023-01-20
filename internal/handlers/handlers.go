@@ -34,6 +34,7 @@ type CategoryService interface {
 
 type ProfileService interface {
 	GetUserProfile(userId int) (*models.FullProfile, error)
+	UpdateProfile(input *models.UpdateProfileInput, userId int) (*models.FullProfile, error)
 }
 
 type Service interface {

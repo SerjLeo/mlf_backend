@@ -18,7 +18,15 @@ To run migrations manually you can use [go-migrate](https://github.com/golang-mi
 
 To run database container:
 
-`docker run --name mlf-db -e POSTGRES_USER=user -e POSTGRES_DB=db -e POSTGRES_PASSWORD=pass -d postgres`
+`docker run --name mlf-db -e POSTGRES_USER=user -e POSTGRES_DB=db -e POSTGRES_PASSWORD=pass -d -p 5432:5432 postgres`
+
+## Documentation generation
+
+For API documentation [swag](https://github.com/swaggo/swag) library is used. To generate swagger docs install swag cli and use command
+
+`swag init -g cmd/app/main.go`
+
+API specification will be available at http://localhost:port/swagger/index.html.
 
 ## Run project with Docker Compose
 

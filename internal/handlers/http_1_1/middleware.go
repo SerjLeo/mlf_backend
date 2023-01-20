@@ -33,6 +33,11 @@ func (h *HTTPRequestHandler) isUserAuthenticated(c *gin.Context) {
 		return
 	}
 
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	c.Set(userCtx, userId)
 }
 

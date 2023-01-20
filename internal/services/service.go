@@ -5,7 +5,6 @@ import (
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/SerjLeo/mlf_backend/pkg/cache"
 	"github.com/SerjLeo/mlf_backend/pkg/colors"
-	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"github.com/SerjLeo/mlf_backend/pkg/templates"
 )
@@ -44,18 +43,22 @@ type CurrencyRepo interface {
 }
 
 type AccountRepo interface {
-	CreateAccount(name string, userId int) (int, error)
+	CreateAccount(name string, currencyId, userId int) (int, error)
 	GetAccountById(accountId, userId int) (*models.Account, error)
-	GetUsersAccounts(userId int, pagination models.PaginationParams) (*models.Account, error)
+	GetUsersAccounts(userId int, pagination models.PaginationParams) ([]models.Account, error)
 	UpdateAccount(accountId, userId int, input *models.Account) error
 	DeleteAccount(accountId, userId int) error
 }
 
 type ProfileRepo interface {
 	CreateProfile(userId int, name string) (int, error)
-	UpdateProfile(userId int) error
+	UpdateProfile(input *models.UpdateProfileInput, userId int) error
 	GetUserProfile(userId int) (*models.FullProfile, error)
 	DeleteProfile(userId, profile int) error
+}
+
+type BalanceRepo interface {
+	GetAccountBalances(userId, accountId int) (*[]models.Balance, error)
 }
 
 type Repository struct {
@@ -65,16 +68,22 @@ type Repository struct {
 	CurrencyRepo
 	AccountRepo
 	ProfileRepo
+	BalanceRepo
+}
+
+type MailManager interface {
+	SendEmail(to string, subject string, body string) error
 }
 
 type ServiceDependencies struct {
 	Repo            *Repository
 	TokenManager    auth.TokenManager
 	HashGenerator   password.HashGenerator
-	MailManager     email.MailManager
+	MailManager     MailManager
 	TemplateManager templates.TemplateManager
 	Cache           *cache.Cache
 	ColorManager    colors.ColorManager
+	Env             string
 }
 
 type AppService struct {
@@ -87,7 +96,7 @@ type AppService struct {
 func NewService(deps ServiceDependencies) *AppService {
 	return &AppService{
 		*NewCategoryService(deps.Repo, deps.ColorManager),
-		*NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager, deps.TemplateManager, deps.Cache),
+		*NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager, deps.TemplateManager, deps.Cache, deps.Env),
 		*NewTransactionService(deps.Repo),
 		*NewProfileService(deps.Repo),
 	}

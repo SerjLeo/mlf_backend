@@ -13,13 +13,18 @@ import (
 
 type HTTPRequestHandler struct {
 	services handlers.Service
+	env      string
 }
 
-func NewRequestHandler(services handlers.Service) *HTTPRequestHandler {
-	return &HTTPRequestHandler{services: services}
+func NewRequestHandler(services handlers.Service, env string) *HTTPRequestHandler {
+	return &HTTPRequestHandler{services: services, env: env}
 }
 
 func (h *HTTPRequestHandler) InitRoutes() *gin.Engine {
+	if h.env != "local" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := gin.New()
 
 	router.Use(

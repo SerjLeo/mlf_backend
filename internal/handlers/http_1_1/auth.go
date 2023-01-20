@@ -89,13 +89,13 @@ func (h *HTTPRequestHandler) userSignUp(c *gin.Context) {
 		Password: input.Password,
 		Name:     input.Name,
 	})
+
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
 		return
 	}
 
 	c.JSON(http.StatusCreated, dataResponse{Data: token})
-
 }
 
 type signUpWithEmailInput struct {
