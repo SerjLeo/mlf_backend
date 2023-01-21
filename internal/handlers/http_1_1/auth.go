@@ -42,21 +42,21 @@ type SignInInput struct {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-in [post]
-func (h *HTTPRequestHandler) userSignIn(c *gin.Context) {
+func (h *HTTPRequestHandler) userSignIn(ctx *gin.Context) {
 	var input SignInInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
 	token, err := h.services.SignIn(input.Email, input.Password)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{Data: token})
+	ctx.JSON(http.StatusOK, dataResponse{Data: token})
 }
 
 type SignUpInput struct {
@@ -76,11 +76,11 @@ type SignUpInput struct {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up [post]
-func (h *HTTPRequestHandler) userSignUp(c *gin.Context) {
+func (h *HTTPRequestHandler) userSignUp(ctx *gin.Context) {
 	var input SignUpInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
@@ -91,11 +91,11 @@ func (h *HTTPRequestHandler) userSignUp(c *gin.Context) {
 	})
 
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, dataResponse{Data: token})
+	ctx.JSON(http.StatusCreated, dataResponse{Data: token})
 }
 
 type signUpWithEmailInput struct {
@@ -113,24 +113,24 @@ type signUpWithEmailInput struct {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up-with-email [post]
-func (h *HTTPRequestHandler) userSignUpWithEmail(c *gin.Context) {
+func (h *HTTPRequestHandler) userSignUpWithEmail(ctx *gin.Context) {
 	var input signUpWithEmailInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
 		return
 	}
 
 	token, err := h.services.CreateUserByEmail(input.Email)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, dataResponse{Data: token})
+	ctx.JSON(http.StatusCreated, dataResponse{Data: token})
 }
 
-func (h *HTTPRequestHandler) userRestorePassword(c *gin.Context) {
+func (h *HTTPRequestHandler) userRestorePassword(ctx *gin.Context) {
 
 }
 
@@ -144,16 +144,16 @@ func (h *HTTPRequestHandler) userRestorePassword(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/check [get]
-func (h *HTTPRequestHandler) userCheckToken(c *gin.Context) {
-	h.isUserAuthenticated(c)
+func (h *HTTPRequestHandler) userCheckToken(ctx *gin.Context) {
+	h.isUserAuthenticated(ctx)
 
-	_, err := h.getUserId(c)
+	_, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "error while checking authorization")
+		newErrorResponse(ctx, http.StatusInternalServerError, "error while checking authorization")
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: true,
 	})
 }

@@ -46,8 +46,8 @@ type AccountRepo interface {
 	CreateAccount(name string, currencyId, userId int) (int, error)
 	GetAccountById(accountId, userId int) (*models.Account, error)
 	GetUsersAccounts(userId int, pagination models.PaginationParams) ([]models.Account, error)
-	UpdateAccount(accountId, userId int, input *models.Account) error
-	DeleteAccount(accountId, userId int) error
+	UpdateAccount(accountId, userId int, input *models.UpdateAccountInput) error
+	SoftDeleteAccount(accountId, userId int) error
 }
 
 type ProfileRepo interface {
@@ -91,6 +91,7 @@ type AppService struct {
 	UserService
 	TransactionService
 	ProfileService
+	AccountService
 }
 
 func NewService(deps ServiceDependencies) *AppService {
@@ -99,5 +100,6 @@ func NewService(deps ServiceDependencies) *AppService {
 		*NewUserService(deps.Repo, deps.TokenManager, deps.HashGenerator, deps.MailManager, deps.TemplateManager, deps.Cache, deps.Env),
 		*NewTransactionService(deps.Repo),
 		*NewProfileService(deps.Repo),
+		*NewAccountService(deps.Repo),
 	}
 }

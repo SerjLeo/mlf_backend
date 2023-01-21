@@ -34,19 +34,19 @@ func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [get]
-func (h *HTTPRequestHandler) getTransactionsList(c *gin.Context) {
+func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 	transactions, err := h.services.GetTransactions(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transactions list:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting transactions list:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transactions,
 	})
 }
@@ -63,32 +63,32 @@ func (h *HTTPRequestHandler) getTransactionsList(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions/{transactionId} [get]
-func (h *HTTPRequestHandler) getTransactionById(c *gin.Context) {
+func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	transactionId := c.Param("id")
+	transactionId := ctx.Param("id")
 	if transactionId == "" {
-		newErrorResponse(c, http.StatusBadRequest, "transaction id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, "transaction id is not provided")
 		return
 	}
 
 	transId, err := strconv.Atoi(transactionId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	transaction, err := h.services.GetTransactionById(userId, transId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transaction:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting transaction:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
@@ -105,17 +105,17 @@ func (h *HTTPRequestHandler) getTransactionById(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [post]
-func (h *HTTPRequestHandler) createTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	var input models.CreateTransactionInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create").Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create").Error())
 		return
 	}
 
@@ -123,125 +123,125 @@ func (h *HTTPRequestHandler) createTransaction(c *gin.Context) {
 
 	transaction, err := h.services.CreateTransaction(userId, &input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while creating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while creating transaction: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
 
-func (h *HTTPRequestHandler) updateTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
 		return
 	}
 
 	var input models.Transaction
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	transaction, err := h.services.UpdateTransaction(userId, transactionId, &input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
 
-func (h *HTTPRequestHandler) deleteTransaction(c *gin.Context) {
+func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
 		return
 	}
 
 	if err := h.services.DeleteTransaction(userId, transactionId); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transactionId,
 	})
 }
 
-func (h *HTTPRequestHandler) attachCategories(c *gin.Context) {
+func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
 		return
 	}
 
 	err = h.services.AttachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: true,
 	})
 }
 
-func (h *HTTPRequestHandler) detachCategories(c *gin.Context) {
+func (h *HTTPRequestHandler) detachCategories(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
 		return
 	}
 
 	err = h.services.DetachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: true,
 	})
 }

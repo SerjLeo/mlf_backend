@@ -1,5 +1,7 @@
 package models
 
+import "errors"
+
 type Account struct {
 	Id        int    `json:"id" db:"account_id"`
 	Name      string `json:"name" db:"name"`
@@ -17,4 +19,21 @@ type AccountWithBalances struct {
 	CreatedAt string    `json:"created_at" db:"created_at"`
 	UpdatedAt string    `json:"updated_at" db:"updated_at"`
 	Balances  []Balance `json:"balances"`
+}
+
+type CreateAccountInput struct {
+	Name       string `json:"name" db:"name"`
+	CurrencyId int    `json:"currency_id" db:"currency_id"`
+}
+
+type UpdateAccountInput struct {
+	Name      string `json:"name" db:"name"`
+	UpdatedAt string `json:"updated_at" db:"updated_at"`
+}
+
+func (i *UpdateAccountInput) Validate() error {
+	if len(i.Name) < 3 {
+		return errors.New("name should be 3 digits or longer")
+	}
+	return nil
 }

@@ -37,11 +37,20 @@ type ProfileService interface {
 	UpdateProfile(input *models.UpdateProfileInput, userId int) (*models.FullProfile, error)
 }
 
+type AccountService interface {
+	CreateAccount(input *models.CreateAccountInput, userId int) (*models.AccountWithBalances, error)
+	GetAccounts(pagination models.PaginationParams, userId int) ([]models.AccountWithBalances, error)
+	SoftDeleteAccount(accountId, userId int) error
+	GetAccountById(accountId, userId int) (*models.AccountWithBalances, error)
+	UpdateAccount(accountId, userId int, input *models.UpdateAccountInput) (*models.AccountWithBalances, error)
+}
+
 type Service interface {
 	UserService
 	TransactionService
 	CategoryService
 	ProfileService
+	AccountService
 }
 
 type Handler interface {

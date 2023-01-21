@@ -74,3 +74,21 @@ func (r *BalancePostgres) GetUserBalanceAmount(userId, currencyId int) (int, err
 	//`)
 	return 0, nil
 }
+
+func (r *BalancePostgres) UpdateBalanceValue(userId, balanceId int, value float64) error {
+	query := fmt.Sprintf(`
+		UPDATE %s
+		SET amount=$1
+		WHERE user_id=$2 AND balance_id=$3
+	`, balanceTable)
+
+	_, err := r.db.Exec(query, value, userId, balanceId)
+	return err
+}
+
+func (r *BalancePostgres) DeleteBalance(userId, balanceId int) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE user_id=$1 AND balance_id=$2", balanceTable)
+
+	_, err := r.db.Exec(query, userId, balanceId)
+	return err
+}

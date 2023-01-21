@@ -32,25 +32,25 @@ func (h *HTTPRequestHandler) initCategoriesRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category [get]
-func (h *HTTPRequestHandler) getCategoriesList(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) getCategoriesList(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	pagination, err := h.getPagination(c)
+	pagination, err := h.getPagination(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
 	}
 
 	categories, err := h.services.GetUserCategories(userId, pagination)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting categories list:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting categories list:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: categories,
 	})
 }
@@ -67,32 +67,32 @@ func (h *HTTPRequestHandler) getCategoriesList(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [get]
-func (h *HTTPRequestHandler) getCategoryById(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) getCategoryById(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	categoryId := c.Param("id")
+	categoryId := ctx.Param("id")
 	if categoryId == "" {
-		newErrorResponse(c, http.StatusBadRequest, "category id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, "category id is not provided")
 		return
 	}
 
 	catId, err := strconv.Atoi(categoryId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	category, err := h.services.GetUserCategoryById(userId, catId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting category: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting category: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: category,
 	})
 }
@@ -109,27 +109,27 @@ func (h *HTTPRequestHandler) getCategoryById(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category [post]
-func (h *HTTPRequestHandler) createCategory(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) createCategory(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	var input models.CreateCategoryInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid data for update").Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for update").Error())
 		return
 	}
 
 	category, err := h.services.CreateCategory(userId, input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while creating category: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while creating category: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: category,
 	})
 }
@@ -147,33 +147,33 @@ func (h *HTTPRequestHandler) createCategory(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [put]
-func (h *HTTPRequestHandler) updateCategory(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) updateCategory(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("id"))
+	categoryId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
 		return
 	}
 
 	var input models.Category
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	category, err := h.services.UpdateCategory(userId, categoryId, input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating category: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while updating category: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: category,
 	})
 }
@@ -190,25 +190,25 @@ func (h *HTTPRequestHandler) updateCategory(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /category/{categoryId} [delete]
-func (h *HTTPRequestHandler) deleteCategory(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) deleteCategory(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("id"))
+	categoryId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
 		return
 	}
 
 	if err := h.services.DeleteCategory(userId, categoryId); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting category: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while deleting category: ", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: categoryId,
 	})
 }

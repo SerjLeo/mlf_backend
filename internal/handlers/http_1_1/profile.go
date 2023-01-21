@@ -26,20 +26,20 @@ func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /profile [get]
-func (h *HTTPRequestHandler) getProfile(c *gin.Context) {
+func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	profile, err := h.services.GetUserProfile(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting profile:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting profile:", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: profile,
 	})
 }
@@ -54,16 +54,16 @@ func (h *HTTPRequestHandler) getProfile(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /profile [put]
-func (h *HTTPRequestHandler) editProfile(c *gin.Context) {
+func (h *HTTPRequestHandler) editProfile(ctx *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	input := &models.UpdateProfileInput{}
-	if err = c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	if err = ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -71,11 +71,11 @@ func (h *HTTPRequestHandler) editProfile(c *gin.Context) {
 
 	profile, err := h.services.UpdateProfile(input, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: profile,
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type AccountPostgres struct {
@@ -89,10 +90,33 @@ func (r *AccountPostgres) GetUsersAccounts(userId int, pagination models.Paginat
 	return accounts, err
 }
 
-func (r *AccountPostgres) UpdateAccount(accountId, userId int, input *models.Account) error {
-	return nil
+func (r *AccountPostgres) UpdateAccount(accountId, userId int, input *models.UpdateAccountInput) error {
+	query := fmt.Sprintf(`UPDATE %s SET `, accountTable)
+	qParts := make([]string, 0, 3)
+	args := make([]interface{}, 0, 3)
+	counter := 1
+
+	if input.Name != "" {
+		qParts = append(qParts, fmt.Sprintf("name=$%d", counter))
+		args = append(args, input.Name)
+		counter++
+	}
+
+	args = append(args, userId, accountId)
+
+	query = query + strings.Join(qParts, ",") + fmt.Sprintf(" WHERE user_id=$%d AND account_id=$%d", counter, counter+1)
+
+	_, err := r.db.Exec(query, args...)
+	return err
 }
 
-func (r *AccountPostgres) DeleteAccount(accountId, userId int) error {
-	return nil
+func (r *AccountPostgres) SoftDeleteAccount(accountId, userId int) error {
+	query := fmt.Sprintf(`
+		UPDATE %s
+		SET suspended=true
+		WHERE user_id=$1 AND account_id=$2
+	`, accountTable)
+
+	_, err := r.db.Exec(query, userId, accountId)
+	return err
 }

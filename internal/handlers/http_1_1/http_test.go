@@ -21,7 +21,7 @@ type dataResponse struct {
 
 func SetupTest() (*gin.Engine, *mocks.ServiceMock) {
 	service := mocks.NewServiceMock()
-	handler := http_1_1.NewRequestHandler(service)
+	handler := http_1_1.NewRequestHandler(service, "")
 	gin.SetMode(gin.TestMode)
 	return handler.InitRoutes(), service
 }

@@ -27,6 +27,6 @@ type userResponse struct {
 	Currency string `json:"currency"`
 }
 
-func newErrorResponse(c *gin.Context, statusCode int, message string) {
-	c.AbortWithStatusJSON(statusCode, errorResponse{message})
+func newErrorResponse(ctx *gin.Context, statusCode int, message string) {
+	ctx.AbortWithStatusJSON(statusCode, errorResponse{message})
 }
