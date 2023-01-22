@@ -3,8 +3,8 @@ package http_1_1
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
-	"github.com/cockroachdb/errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
 )

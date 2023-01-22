@@ -28,9 +28,15 @@ For API documentation [swag](https://github.com/swaggo/swag) library is used. To
 
 API specification will be available at http://localhost:port/swagger/index.html.
 
+## Testing
+
+For testing [testify](https://github.com/stretchr/testify) and [mockery](https://github.com/vektra/mockery) is used. To generate mocks use mockery command:
+
+`mockery`
+
 ## Run project with Docker Compose
 
-To build app containers [docker-compose](https://docs.docker.com/compose/) is used.
+To build app containers [docker-compose](https://docs.docker.com/compose/) libraries is used.
 
 Initial build command:
 

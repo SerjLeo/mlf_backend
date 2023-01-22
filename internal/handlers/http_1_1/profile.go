@@ -27,7 +27,7 @@ func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
 // @Failure default {object} errorResponse
 // @Router /profile [get]
 func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -55,7 +55,7 @@ func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
 // @Failure default {object} errorResponse
 // @Router /profile [put]
 func (h *HTTPRequestHandler) editProfile(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return

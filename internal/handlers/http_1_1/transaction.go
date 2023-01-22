@@ -35,7 +35,7 @@ func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 // @Failure default {object} errorResponse
 // @Router /transactions [get]
 func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -64,7 +64,7 @@ func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
 // @Failure default {object} errorResponse
 // @Router /transactions/{transactionId} [get]
 func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -106,7 +106,7 @@ func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
 // @Failure default {object} errorResponse
 // @Router /transactions [post]
 func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -133,7 +133,7 @@ func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
 }
 
 func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -164,7 +164,7 @@ func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
 }
 
 func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -187,7 +187,7 @@ func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
 }
 
 func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return
@@ -217,7 +217,7 @@ func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
 }
 
 func (h *HTTPRequestHandler) detachCategories(ctx *gin.Context) {
-	userId, err := h.getUserId(c)
+	userId, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
 		return

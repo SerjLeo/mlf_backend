@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
+	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
 
 func TestSignInHandler(t *testing.T) {
-	router, mock := SetupTest()
+	router, mock := SetupTest(t)
 
 	mock.On("SignIn", "correctEmail", "correctPassword").Return("token", nil)
 	mock.On("SignIn", "incorrectEmail", "incorrectPassword").Return("", errors.New("user dont exist"))
@@ -72,21 +73,21 @@ func TestSignInHandler(t *testing.T) {
 }
 
 func TestSignUpHandler(t *testing.T) {
-	router, mock := SetupTest()
+	router, mock := SetupTest(t)
 
-	mockUser := http_1_1.SignUpInput{
+	mockUser := models.CreateUserInput{
 		Name:     "username",
 		Email:    "example@mail.com",
 		Password: "password",
 	}
-	mock.On("Create", mockUser).Return("token", nil)
+	mock.On("Create", &mockUser).Return("token", nil)
 
 	t.Run("sing up succeeded", func(t *testing.T) {
-		payload := http_1_1.SignUpInput{Name: "username", Email: "example@mail.com", Password: "password"}
+		payload := models.CreateUserInput{Name: "username", Email: "example@mail.com", Password: "password"}
 		w := PerformRequest(router, "POST", fmt.Sprintf("/api/auth%s", http_1_1.SignUpRoute), payload)
 
 		assert.Equal(t, w.Code, http.StatusCreated)
-		mock.AssertCalled(t, "Create", mockUser)
+		mock.AssertCalled(t, "Create", &mockUser)
 		result := dataResponse{}
 		err := json.Unmarshal(w.Body.Bytes(), &result)
 		if err != nil {
@@ -97,32 +98,32 @@ func TestSignUpHandler(t *testing.T) {
 
 	invalidDataTestCases := []struct {
 		name           string
-		payload        http_1_1.SignUpInput
+		payload        models.CreateUserInput
 		expectedStatus int
 	}{
 		{
 			name:           "no email provided",
-			payload:        http_1_1.SignUpInput{Email: "", Password: "password", Name: "username"},
+			payload:        models.CreateUserInput{Email: "", Password: "password", Name: "username"},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
 			name:           "no password provided",
-			payload:        http_1_1.SignUpInput{Email: "example@mail.com", Password: "", Name: "username"},
+			payload:        models.CreateUserInput{Email: "example@mail.com", Password: "", Name: "username"},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
 			name:           "no name provided",
-			payload:        http_1_1.SignUpInput{Email: "example@mail.com", Name: "", Password: "password"},
+			payload:        models.CreateUserInput{Email: "example@mail.com", Name: "", Password: "password"},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
 			name:           "email is not valid",
-			payload:        http_1_1.SignUpInput{Email: "examplemailcom", Password: "password", Name: "username"},
+			payload:        models.CreateUserInput{Email: "examplemailcom", Password: "password", Name: "username"},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
 			name:           "password length less than 6",
-			payload:        http_1_1.SignUpInput{Email: "example@mail.com", Password: "pass", Name: "username"},
+			payload:        models.CreateUserInput{Email: "example@mail.com", Password: "pass", Name: "username"},
 			expectedStatus: http.StatusBadRequest,
 		},
 	}
@@ -132,7 +133,7 @@ func TestSignUpHandler(t *testing.T) {
 			w := PerformRequest(router, "POST", fmt.Sprintf("/api/auth%s", http_1_1.SignUpRoute), tt.payload)
 
 			assert.Equal(t, w.Code, tt.expectedStatus)
-			mock.AssertNotCalled(t, "Create", http_1_1.SignUpInput{
+			mock.AssertNotCalled(t, "Create", &models.CreateUserInput{
 				Email:    tt.payload.Email,
 				Name:     tt.payload.Name,
 				Password: tt.payload.Password,
