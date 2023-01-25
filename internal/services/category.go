@@ -21,21 +21,21 @@ func (s *CategoryService) GetUserCategories(userId int, pagination models.Pagina
 	return s.repo.CategoryRepo.GetUserCategories(userId, pagination)
 }
 
-func (s *CategoryService) GetUserCategoryById(userId, categoryId int) (models.Category, error) {
+func (s *CategoryService) GetUserCategoryById(userId, categoryId int) (*models.Category, error) {
 	return s.repo.CategoryRepo.GetUserCategoryById(userId, categoryId)
 }
 
-func (s *CategoryService) CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error) {
+func (s *CategoryService) CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error) {
 	if !s.colors.IsHEX(input.Color) {
 		input.Color = s.colors.GenerateHex()
 	}
 	return s.repo.CategoryRepo.CreateCategory(userId, input)
 }
 
-func (s *CategoryService) UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error) {
+func (s *CategoryService) UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error) {
 	oldCategory, err := s.GetUserCategoryById(userId, categoryId)
 	if err != nil {
-		return models.Category{}, err
+		return nil, err
 	}
 	mergo.Merge(&input, oldCategory)
 	input.UpdatedAt = time.Now().Format(time.RFC3339)

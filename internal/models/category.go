@@ -13,3 +13,9 @@ type CreateCategoryInput struct {
 	Name  string `json:"name" db:"name" binding:"required" binding:"max=255"`
 	Color string `json:"color" db:"color"`
 }
+
+type UpdateCategoryInput struct {
+	Name      string `json:"name" db:"name" binding:"required" binding:"max=255"`
+	Color     string `json:"color" db:"color"`
+	UpdatedAt string `json:"updated_at" db:"updated_at"`
+}

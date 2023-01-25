@@ -3,15 +3,17 @@ package http_1_1
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 )
 
 func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
-	auth := api.Group("/profile", h.isUserAuthenticated)
+	profile := api.Group("/profile", h.isUserAuthenticated)
 	{
-		auth.GET("", h.getProfile)
-		auth.PUT("", h.editProfile)
+		profile.GET("", h.getProfile)
+		profile.PUT("", h.editProfile)
 	}
 }
 
@@ -29,13 +31,13 @@ func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
 func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	profile, err := h.services.GetUserProfile(userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting profile:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting profile"))
 		return
 	}
 
@@ -57,13 +59,13 @@ func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
 func (h *HTTPRequestHandler) editProfile(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	input := &models.UpdateProfileInput{}
 	if err = ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
@@ -71,7 +73,7 @@ func (h *HTTPRequestHandler) editProfile(ctx *gin.Context) {
 
 	profile, err := h.services.UpdateProfile(input, userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 

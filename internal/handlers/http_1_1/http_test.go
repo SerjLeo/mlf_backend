@@ -11,13 +11,25 @@ import (
 	"testing"
 )
 
+const (
+	validUserId             = 1
+	existingIdParam         = "1"
+	notExistingIdParam      = "2"
+	existingIdParamValue    = 1
+	notExistingIdParamValue = 2
+	invalidIdParam          = "text"
+	validToken              = "token"
+	validTokenHeader        = "Bearer token"
+)
+
 type header struct {
 	Key   string
 	Value string
 }
 
 type dataResponse struct {
-	Data interface{} `json:"data"`
+	Data  interface{} `json:"data,omitempty"`
+	Error string      `json:"error,omitempty"`
 }
 
 func SetupTest(t *testing.T) (*gin.Engine, *mocks.Service) {

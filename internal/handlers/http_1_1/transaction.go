@@ -3,6 +3,7 @@ package http_1_1
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -28,7 +29,7 @@ func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param input body metaParams false "pagination params and filters"
+// @Param payload body metaParams false "pagination params and filters"
 // @Success 200 {object} dataWithPaginationResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -37,12 +38,13 @@ func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
+
 	transactions, err := h.services.GetTransactions(userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting transactions list:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting transactions list"))
 		return
 	}
 
@@ -66,25 +68,25 @@ func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
 func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	transactionId := ctx.Param("id")
 	if transactionId == "" {
-		newErrorResponse(ctx, http.StatusBadRequest, "transaction id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.TransactionIdNotProvided)
 		return
 	}
 
 	transId, err := strconv.Atoi(transactionId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	transaction, err := h.services.GetTransactionById(userId, transId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting transaction:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting transaction"))
 		return
 	}
 
@@ -99,7 +101,7 @@ func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param input body models.CreateTransactionInput true "created transaction fields"
+// @Param payload body models.CreateTransactionInput true "created transaction fields"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -108,14 +110,14 @@ func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
 func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	var input models.CreateTransactionInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create"))
 		return
 	}
 
@@ -123,7 +125,7 @@ func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
 
 	transaction, err := h.services.CreateTransaction(userId, &input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while creating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while creating transaction"))
 		return
 	}
 
@@ -135,26 +137,26 @@ func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
 func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	var input models.Transaction
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, custom_errors.BadInput)
 		return
 	}
 
 	transaction, err := h.services.UpdateTransaction(userId, transactionId, &input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while updating transaction"))
 		return
 	}
 
@@ -166,18 +168,18 @@ func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
 func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	if err := h.services.DeleteTransaction(userId, transactionId); err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while deleting category"))
 		return
 	}
 
@@ -189,25 +191,25 @@ func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
 func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id"))
 		return
 	}
 
 	err = h.services.AttachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while attach category"))
 		return
 	}
 
@@ -219,25 +221,25 @@ func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
 func (h *HTTPRequestHandler) detachCategories(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id"))
 		return
 	}
 
 	err = h.services.DetachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while detach category"))
 		return
 	}
 

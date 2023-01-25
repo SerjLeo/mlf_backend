@@ -30,9 +30,9 @@ type TransactionRepo interface {
 
 type CategoryRepo interface {
 	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
-	GetUserCategoryById(userId, categoryId int) (models.Category, error)
-	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
-	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)
+	GetUserCategoryById(userId, categoryId int) (*models.Category, error)
+	CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error)
+	UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error)
 	DeleteCategory(userId, categoryId int) error
 }
 

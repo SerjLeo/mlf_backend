@@ -22,12 +22,19 @@ type AccountWithBalances struct {
 }
 
 type CreateAccountInput struct {
-	Name       string `json:"name" db:"name"`
+	Name       string `json:"name" db:"name" binding:"required,min=3"`
 	CurrencyId int    `json:"currency_id" db:"currency_id"`
 }
 
+func (i *CreateAccountInput) Validate() error {
+	if len(i.Name) < 3 {
+		return errors.New("name should be 3 digits or longer")
+	}
+	return nil
+}
+
 type UpdateAccountInput struct {
-	Name      string `json:"name" db:"name"`
+	Name      string `json:"name" db:"name" binding:"required,min=3"`
 	UpdatedAt string `json:"updated_at" db:"updated_at"`
 }
 

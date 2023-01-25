@@ -1,8 +1,8 @@
 package http_1_1
 
 import (
-	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -10,39 +10,39 @@ import (
 )
 
 const (
-	GetAccountsRoute    = "/"
+	GetAccountsRoute    = ""
 	GetAccountByIdRoute = "/:id"
-	CreateAccountRoute  = "/"
+	CreateAccountRoute  = ""
 	UpdateAccountRoute  = "/:id"
 	DeleteAccountRoute  = "/:id"
 )
 
 func (h *HTTPRequestHandler) initAccountRoutes(api *gin.RouterGroup) {
-	auth := api.Group("/account", h.isUserAuthenticated)
+	acc := api.Group("/account", h.isUserAuthenticated)
 	{
-		auth.GET(GetAccountsRoute, h.withPagination, h.GetUserAccounts)
-		auth.GET(GetAccountByIdRoute, h.GetUserAccountById)
-		auth.POST(CreateAccountRoute, h.CreateUserAccount)
-		auth.PUT(UpdateAccountRoute, h.UpdateUserAccount)
-		auth.DELETE(DeleteAccountRoute, h.DeleteUserAccount)
+		acc.GET(GetAccountsRoute, h.withPagination, h.getUserAccounts)
+		acc.GET(GetAccountByIdRoute, h.getUserAccountById)
+		acc.POST(CreateAccountRoute, h.createUserAccount)
+		acc.PUT(UpdateAccountRoute, h.updateUserAccount)
+		acc.DELETE(DeleteAccountRoute, h.deleteUserAccount)
 	}
 }
 
-func (h *HTTPRequestHandler) GetUserAccounts(ctx *gin.Context) {
+func (h *HTTPRequestHandler) getUserAccounts(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	pagination, err := h.getPagination(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, err.Error())
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 	}
 
 	accounts, err := h.services.GetAccounts(pagination, userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting accounts:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error getting accounts"))
 		return
 	}
 
@@ -51,28 +51,28 @@ func (h *HTTPRequestHandler) GetUserAccounts(ctx *gin.Context) {
 	})
 }
 
-func (h *HTTPRequestHandler) GetUserAccountById(ctx *gin.Context) {
+func (h *HTTPRequestHandler) getUserAccountById(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	accountId := ctx.Param("id")
 	if accountId == "" {
-		newErrorResponse(ctx, http.StatusBadRequest, "account id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountIDIsNotProvided)
 		return
 	}
 
 	accId, err := strconv.Atoi(accountId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountInvalidID)
 		return
 	}
 
 	account, err := h.services.GetAccountById(accId, userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting account:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -81,60 +81,60 @@ func (h *HTTPRequestHandler) GetUserAccountById(ctx *gin.Context) {
 	})
 }
 
-func (h *HTTPRequestHandler) CreateUserAccount(ctx *gin.Context) {
+func (h *HTTPRequestHandler) createUserAccount(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	var input models.CreateAccountInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create").Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
 	account, err := h.services.CreateAccount(&input, userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting account:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while creating account"))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusCreated, dataResponse{
 		Data: account,
 	})
 }
 
-func (h *HTTPRequestHandler) UpdateUserAccount(ctx *gin.Context) {
+func (h *HTTPRequestHandler) updateUserAccount(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	accountId := ctx.Param("id")
 	if accountId == "" {
-		newErrorResponse(ctx, http.StatusBadRequest, "account id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountIDIsNotProvided)
 		return
 	}
 
 	accId, err := strconv.Atoi(accountId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountInvalidID)
 		return
 	}
 
 	var input models.UpdateAccountInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for update").Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
 	account, err := h.services.UpdateAccount(accId, userId, &input)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error updating account:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while updating account"))
 		return
 	}
 
@@ -143,28 +143,28 @@ func (h *HTTPRequestHandler) UpdateUserAccount(ctx *gin.Context) {
 	})
 }
 
-func (h *HTTPRequestHandler) DeleteUserAccount(ctx *gin.Context) {
+func (h *HTTPRequestHandler) deleteUserAccount(ctx *gin.Context) {
 	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	accountId := ctx.Param("id")
 	if accountId == "" {
-		newErrorResponse(ctx, http.StatusBadRequest, "account id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountIDIsNotProvided)
 		return
 	}
 
 	accId, err := strconv.Atoi(accountId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.AccountInvalidID)
 		return
 	}
 
 	err = h.services.SoftDeleteAccount(accId, userId)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprint("Error getting account:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 

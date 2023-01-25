@@ -92,18 +92,20 @@ func (_m *Service) CreateAccount(input *models.CreateAccountInput, userId int) (
 }
 
 // CreateCategory provides a mock function with given fields: userId, input
-func (_m *Service) CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error) {
+func (_m *Service) CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error) {
 	ret := _m.Called(userId, input)
 
-	var r0 models.Category
-	if rf, ok := ret.Get(0).(func(int, models.CreateCategoryInput) models.Category); ok {
+	var r0 *models.Category
+	if rf, ok := ret.Get(0).(func(int, *models.CreateCategoryInput) *models.Category); ok {
 		r0 = rf(userId, input)
 	} else {
-		r0 = ret.Get(0).(models.Category)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Category)
+		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, models.CreateCategoryInput) error); ok {
+	if rf, ok := ret.Get(1).(func(int, *models.CreateCategoryInput) error); ok {
 		r1 = rf(userId, input)
 	} else {
 		r1 = ret.Error(1)
@@ -312,14 +314,16 @@ func (_m *Service) GetUserCategories(userId int, pagination models.PaginationPar
 }
 
 // GetUserCategoryById provides a mock function with given fields: userId, categoryId
-func (_m *Service) GetUserCategoryById(userId int, categoryId int) (models.Category, error) {
+func (_m *Service) GetUserCategoryById(userId int, categoryId int) (*models.Category, error) {
 	ret := _m.Called(userId, categoryId)
 
-	var r0 models.Category
-	if rf, ok := ret.Get(0).(func(int, int) models.Category); ok {
+	var r0 *models.Category
+	if rf, ok := ret.Get(0).(func(int, int) *models.Category); ok {
 		r0 = rf(userId, categoryId)
 	} else {
-		r0 = ret.Get(0).(models.Category)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Category)
+		}
 	}
 
 	var r1 error
@@ -428,18 +432,20 @@ func (_m *Service) UpdateAccount(accountId int, userId int, input *models.Update
 }
 
 // UpdateCategory provides a mock function with given fields: userId, categoryId, input
-func (_m *Service) UpdateCategory(userId int, categoryId int, input models.Category) (models.Category, error) {
+func (_m *Service) UpdateCategory(userId int, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error) {
 	ret := _m.Called(userId, categoryId, input)
 
-	var r0 models.Category
-	if rf, ok := ret.Get(0).(func(int, int, models.Category) models.Category); ok {
+	var r0 *models.Category
+	if rf, ok := ret.Get(0).(func(int, int, *models.UpdateCategoryInput) *models.Category); ok {
 		r0 = rf(userId, categoryId, input)
 	} else {
-		r0 = ret.Get(0).(models.Category)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Category)
+		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, models.Category) error); ok {
+	if rf, ok := ret.Get(1).(func(int, int, *models.UpdateCategoryInput) error); ok {
 		r1 = rf(userId, categoryId, input)
 	} else {
 		r1 = ret.Error(1)

@@ -1,9 +1,10 @@
 package http_1_1
 
 import (
-	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 )
 
@@ -36,7 +37,7 @@ type SignInInput struct {
 // @Description returns auth JWT
 // @Accept  json
 // @Produce  json
-// @Param input body SignInInput true "info for user's login"
+// @Param payload body SignInInput true "info for user's login"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -46,13 +47,13 @@ func (h *HTTPRequestHandler) userSignIn(ctx *gin.Context) {
 	var input SignInInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
 	token, err := h.services.SignIn(input.Email, input.Password)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -70,7 +71,7 @@ type SignUpInput struct {
 // @Description creates user and returns auth JWT
 // @Accept  json
 // @Produce  json
-// @Param input body SignUpInput true "data for user creation"
+// @Param payload body SignUpInput true "data for user creation"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -80,7 +81,7 @@ func (h *HTTPRequestHandler) userSignUp(ctx *gin.Context) {
 	var input SignUpInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
@@ -91,7 +92,7 @@ func (h *HTTPRequestHandler) userSignUp(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -107,7 +108,7 @@ type signUpWithEmailInput struct {
 // @Description creates user with email, password generates automatically and returns auth JWT
 // @Accept  json
 // @Produce  json
-// @Param input body signUpWithEmailInput true "email for user creation"
+// @Param payload body signUpWithEmailInput true "email for user creation"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -117,13 +118,13 @@ func (h *HTTPRequestHandler) userSignUpWithEmail(ctx *gin.Context) {
 	var input signUpWithEmailInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, http.StatusBadRequest, fmt.Sprintf("error parsing JSON: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
 		return
 	}
 
 	token, err := h.services.CreateUserByEmail(input.Email)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("error while creating user: %s", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while creating user"))
 		return
 	}
 
@@ -149,7 +150,7 @@ func (h *HTTPRequestHandler) userCheckToken(ctx *gin.Context) {
 
 	_, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(ctx, http.StatusInternalServerError, "error while checking authorization")
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 

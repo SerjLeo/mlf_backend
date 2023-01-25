@@ -27,7 +27,7 @@ func (r *CategoryPostgres) GetUserCategories(userId int, pagination models.Pagin
 	return categories, err
 }
 
-func (r *CategoryPostgres) GetUserCategoryById(userId, categoryId int) (models.Category, error) {
+func (r *CategoryPostgres) GetUserCategoryById(userId, categoryId int) (*models.Category, error) {
 	query := fmt.Sprintf(`
 		SELECT * FROM %s
 		WHERE user_id=$1 AND category_id=$2
@@ -36,10 +36,10 @@ func (r *CategoryPostgres) GetUserCategoryById(userId, categoryId int) (models.C
 	category := models.Category{}
 
 	err := r.db.Get(&category, query, userId, categoryId)
-	return category, err
+	return &category, err
 }
 
-func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error) {
+func (r *CategoryPostgres) CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error) {
 	query := fmt.Sprintf(`
 		INSERT INTO %s (name, color, user_id)
 		VALUES($1, $2, $3)
@@ -50,10 +50,10 @@ func (r *CategoryPostgres) CreateCategory(userId int, input models.CreateCategor
 
 	row := r.db.QueryRow(query, input.Name, input.Color, userId)
 	err := row.Scan(&category.Id, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
-	return category, err
+	return &category, err
 }
 
-func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error) {
+func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error) {
 	query := fmt.Sprintf(`
 		UPDATE %s
 		SET name = $1, color = $2, updated_at = $3
@@ -65,7 +65,7 @@ func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input models.C
 
 	row := r.db.QueryRow(query, input.Name, input.Color, input.UpdatedAt, userId, categoryId)
 	err := row.Scan(&category.Id, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
-	return category, err
+	return &category, err
 }
 
 func (r *CategoryPostgres) DeleteCategory(userId, categoryId int) error {

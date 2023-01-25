@@ -3,6 +3,7 @@ package postgres
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/jmoiron/sqlx"
 	"strings"
 )
@@ -34,7 +35,7 @@ func (r *UserPostgres) CreateUser(input *models.CreateUserInput) (int, error) {
 	if err = row.Scan(&id); err != nil {
 		tx.Rollback()
 		if strings.Contains(err.Error(), "duplicate key value") {
-			return id, models.UserAlreadyExist
+			return id, custom_errors.UserAlreadyExist
 		}
 		return id, err
 	}
@@ -108,7 +109,7 @@ func (r *UserPostgres) AuthenticateUser(email, passHash string) (*models.User, e
 
 	err := r.db.Get(&user, query, email, passHash)
 	if err != nil && strings.Contains(err.Error(), "no rows") {
-		return nil, models.EmailOrPassNotMatch
+		return nil, custom_errors.EmailOrPassNotMatch
 	}
 
 	return &user, err
@@ -123,7 +124,7 @@ func (r *UserPostgres) GetUserById(userId int) (*models.User, error) {
 
 	err := r.db.Get(&user, query, userId)
 	if err != nil && strings.Contains(err.Error(), "no rows") {
-		return nil, models.UserDoesntExist
+		return nil, custom_errors.UserDoesntExist
 	}
 
 	return &user, err

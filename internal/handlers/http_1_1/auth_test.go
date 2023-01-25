@@ -14,7 +14,7 @@ import (
 func TestSignInHandler(t *testing.T) {
 	router, mock := SetupTest(t)
 
-	mock.On("SignIn", "correctEmail", "correctPassword").Return("token", nil)
+	mock.On("SignIn", "correctEmail", "correctPassword").Return(validToken, nil)
 	mock.On("SignIn", "incorrectEmail", "incorrectPassword").Return("", errors.New("user dont exist"))
 
 	t.Run("authorization succeeded", func(t *testing.T) {
@@ -28,7 +28,7 @@ func TestSignInHandler(t *testing.T) {
 		if err != nil {
 			t.Error("Fail to parse response")
 		}
-		assert.ObjectsAreEqual(result, dataResponse{Data: "token"})
+		assert.ObjectsAreEqual(result, dataResponse{Data: validToken})
 	})
 
 	t.Run("wrong credentials", func(t *testing.T) {
@@ -80,10 +80,10 @@ func TestSignUpHandler(t *testing.T) {
 		Email:    "example@mail.com",
 		Password: "password",
 	}
-	mock.On("Create", &mockUser).Return("token", nil)
+	mock.On("Create", &mockUser).Return(validToken, nil)
 
 	t.Run("sing up succeeded", func(t *testing.T) {
-		payload := models.CreateUserInput{Name: "username", Email: "example@mail.com", Password: "password"}
+		payload := mockUser
 		w := PerformRequest(router, "POST", fmt.Sprintf("/api/auth%s", http_1_1.SignUpRoute), payload)
 
 		assert.Equal(t, w.Code, http.StatusCreated)
@@ -93,7 +93,7 @@ func TestSignUpHandler(t *testing.T) {
 		if err != nil {
 			t.Error("Fail to parse response")
 		}
-		assert.ObjectsAreEqual(result, dataResponse{Data: "token"})
+		assert.ObjectsAreEqual(result, dataResponse{Data: validToken})
 	})
 
 	invalidDataTestCases := []struct {
