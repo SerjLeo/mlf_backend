@@ -45,12 +45,17 @@ type AccountService interface {
 	UpdateAccount(accountId, userId int, input *models.UpdateAccountInput) (*models.AccountWithBalances, error)
 }
 
+type BalanceService interface {
+	GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error)
+}
+
 type Service interface {
 	UserService
 	TransactionService
 	CategoryService
 	ProfileService
 	AccountService
+	BalanceService
 }
 
 type Handler interface {

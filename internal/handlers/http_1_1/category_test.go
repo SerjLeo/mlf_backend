@@ -151,28 +151,7 @@ func TestGetUserCategoryById(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "GET", fmt.Sprintf("/api/category/%s", tt.catIdParam), "", tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 }
@@ -233,28 +212,7 @@ func TestCreateCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "POST", "/api/category", tt.payload, tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 }
@@ -351,28 +309,7 @@ func TestUpdateCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "PUT", fmt.Sprintf("/api/category/%s", tt.accIdParam), tt.payload, tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 }
@@ -435,28 +372,7 @@ func TestDeleteCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "DELETE", fmt.Sprintf("/api/category/%s", tt.catIdParam), "", tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 }

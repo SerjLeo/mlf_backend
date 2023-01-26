@@ -19,7 +19,7 @@ const (
 func (h *HTTPRequestHandler) initAuthRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/auth")
 	{
-		auth.GET(CheckTokenRoute, h.userCheckToken)
+		auth.GET(CheckTokenRoute, h.isUserAuthenticated, h.userCheckToken)
 		auth.POST(SignInRoute, h.userSignIn)
 		auth.POST(SignUpRoute, h.userSignUp)
 		auth.POST(SignUpWithEmailRoute, h.userSignUpWithEmail)
@@ -146,8 +146,6 @@ func (h *HTTPRequestHandler) userRestorePassword(ctx *gin.Context) {
 // @Failure default {object} errorResponse
 // @Router /auth/check [get]
 func (h *HTTPRequestHandler) userCheckToken(ctx *gin.Context) {
-	h.isUserAuthenticated(ctx)
-
 	_, err := h.getUserId(ctx)
 	if err != nil {
 		newErrorResponse(ctx, http.StatusInternalServerError, err)

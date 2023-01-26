@@ -290,6 +290,29 @@ func (_m *Service) GetTransactions(userId int) ([]models.Transaction, error) {
 	return r0, r1
 }
 
+// GetUserBalancesAmount provides a mock function with given fields: userId
+func (_m *Service) GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error) {
+	ret := _m.Called(userId)
+
+	var r0 []models.BalanceOfCurrency
+	if rf, ok := ret.Get(0).(func(int) []models.BalanceOfCurrency); ok {
+		r0 = rf(userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.BalanceOfCurrency)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserCategories provides a mock function with given fields: userId, pagination
 func (_m *Service) GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error) {
 	ret := _m.Called(userId, pagination)

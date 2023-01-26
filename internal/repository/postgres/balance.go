@@ -67,12 +67,35 @@ func (r *BalancePostgres) GetAccountBalances(userId, accountId int) (*[]models.B
 	return &balances, err
 }
 
-func (r *BalancePostgres) GetUserBalanceAmount(userId, currencyId int) (int, error) {
-	//query := fmt.Sprintf(`
-	//	SELECT FROM %s (currency_id, user_id)
-	//	VALUES ($1, $2)
-	//`)
-	return 0, nil
+func (r *BalancePostgres) GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error) {
+	query := fmt.Sprintf(`
+		SELECT cur.currency_id, cur.name as currency, SUM(bal.amount) as total, bal.user_id
+		FROM %s as bal
+		INNER JOIN %s as cur ON bal.currency_id=cur.currency_id
+	 	WHERE bal.user_id=$1
+		GROUP BY cur.currency_id, user_id
+	`, balanceTable, currencyTable)
+
+	balances := []models.BalanceOfCurrency{}
+
+	err := r.db.Select(&balances, query, userId)
+
+	return balances, err
+}
+
+func (r *BalancePostgres) GetUserCurrencyBalanceAmount(userId, currencyId int) (*models.BalanceOfCurrency, error) {
+	query := fmt.Sprintf(`
+		SELECT cur.currency_id, cur.name as currency, SUM(bal.amount) as total, bal.user_id
+		FROM %s as bal
+		INNER JOIN %s as cur ON bal.currency_id=cur.currency_id
+		WHERE cur.currency_id=$1 AND user_id=$2
+		GROUP BY cur.currency_id, user_id
+	`, balanceTable, currencyTable)
+
+	balance := &models.BalanceOfCurrency{}
+
+	err := r.db.Get(balance, query, currencyId, userId)
+	return balance, err
 }
 
 func (r *BalancePostgres) UpdateBalanceValue(userId, balanceId int, value float64) error {

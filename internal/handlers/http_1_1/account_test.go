@@ -160,28 +160,7 @@ func TestGetUserAccountById(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "GET", fmt.Sprintf("/api/account/%s", tt.accIdParam), "", tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 
@@ -244,28 +223,7 @@ func TestCreateUserAccount(t *testing.T) {
 
 			fmt.Printf("%+v", w.Body)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 
@@ -363,28 +321,7 @@ func TestUpdateUserAccount(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "PUT", fmt.Sprintf("/api/account/%s", tt.accIdParam), tt.payload, tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 
@@ -448,28 +385,7 @@ func TestDeleteUserAccount(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := PerformRequest(router, "DELETE", fmt.Sprintf("/api/account/%s", tt.accIdParam), "", tt.headers...)
 
-			result := dataResponse{}
-			err := json.Unmarshal(w.Body.Bytes(), &result)
-			if err != nil {
-				t.Error("Fail to parse response")
-			}
-
-			assert.Equal(t, tt.expectedCode, w.Code)
-
-			if result.Data != nil {
-				assert.ObjectsAreEqual(tt.expectedOutput.Data, result.Data)
-			}
-
-			if result.Error != "" {
-				assert.Truef(
-					t,
-					strings.Contains(result.Error,
-						tt.expectedOutput.Error),
-					"expected error message \n \"%s\" \n inclusing \"%s\"",
-					result.Error,
-					tt.expectedOutput.Error,
-				)
-			}
+			CheckResults(t, w, tt.expectedCode, tt.expectedOutput)
 		})
 	}
 

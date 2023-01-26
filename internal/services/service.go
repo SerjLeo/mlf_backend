@@ -59,6 +59,9 @@ type ProfileRepo interface {
 
 type BalanceRepo interface {
 	GetAccountBalances(userId, accountId int) (*[]models.Balance, error)
+	CreateBalance(userId, accountId, currencyId int) (int, error)
+	GetUserCurrencyBalanceAmount(userId, currencyId int) (*models.BalanceOfCurrency, error)
+	GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error)
 }
 
 type Repository struct {
@@ -92,6 +95,7 @@ type AppService struct {
 	TransactionService
 	ProfileService
 	AccountService
+	BalanceService
 }
 
 func NewService(deps ServiceDependencies) *AppService {
@@ -101,5 +105,6 @@ func NewService(deps ServiceDependencies) *AppService {
 		*NewTransactionService(deps.Repo),
 		*NewProfileService(deps.Repo),
 		*NewAccountService(deps.Repo),
+		*NewBalanceService(deps.Repo),
 	}
 }

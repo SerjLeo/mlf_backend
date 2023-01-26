@@ -6,8 +6,10 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/handlers/http_1_1"
 	"github.com/SerjLeo/mlf_backend/mocks"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -37,6 +39,30 @@ func SetupTest(t *testing.T) (*gin.Engine, *mocks.Service) {
 	handler := http_1_1.NewRequestHandler(service, "")
 	gin.SetMode(gin.TestMode)
 	return handler.InitRoutes(), service
+}
+
+func CheckResults(t *testing.T, w *httptest.ResponseRecorder, expectedCode int, expectedOutput dataResponse) {
+	result := dataResponse{}
+	err := json.Unmarshal(w.Body.Bytes(), &result)
+	if err != nil {
+		t.Error("Fail to parse response")
+	}
+
+	assert.Equal(t, expectedCode, w.Code)
+	if result.Data != nil {
+		assert.ObjectsAreEqual(expectedOutput.Data, result.Data)
+	}
+
+	if result.Error != "" {
+		assert.Truef(
+			t,
+			strings.Contains(result.Error,
+				expectedOutput.Error),
+			"expected error message \n \"%s\" \n inclusing \"%s\"",
+			result.Error,
+			expectedOutput.Error,
+		)
+	}
 }
 
 func PerformRequest(r http.Handler, method, path string, body interface{}, headers ...header) *httptest.ResponseRecorder {
