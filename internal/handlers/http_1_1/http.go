@@ -73,6 +73,7 @@ func (h *HTTPRequestHandler) initApi(router *gin.Engine) {
 			h.initProfileRoutes(api)
 			h.initAccountRoutes(api)
 			h.initBalanceRoutes(api)
+			h.initCurrencyRoutes(api)
 		}
 	}
 }

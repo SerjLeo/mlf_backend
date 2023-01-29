@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/imdario/mergo"
 	"time"
@@ -16,15 +15,24 @@ func NewTransactionService(repo *Repository) *TransactionService {
 }
 
 func (s *TransactionService) CreateTransaction(userId int, input *models.CreateTransactionInput) (*models.Transaction, error) {
-	if input.CurrencyId == 0 {
-		currency, err := s.repo.CurrencyRepo.GetUsersCurrency(userId)
-		fmt.Printf("%+v", currency)
+	targetBalance, err := s.repo.BalanceRepo.GetBalanceByCurrencyAndAccount(userId, input.AccountId, input.CurrencyId)
+	if err != nil {
+		newBalanceId, err := s.repo.BalanceRepo.CreateBalance(userId, input.AccountId, input.CurrencyId)
 		if err != nil {
 			return nil, err
 		}
-		input.CurrencyId = currency.CurrencyId
+		targetBalance, err = s.repo.BalanceRepo.GetBalanceById(userId, newBalanceId)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return s.repo.TransactionRepo.CreateTransactionWithCategories(userId, *input)
+	var newAmount float64
+	if input.TransactionType {
+		newAmount = targetBalance.Amount + input.Amount
+	} else {
+		newAmount = targetBalance.Amount - input.Amount
+	}
+	return s.repo.TransactionRepo.CreateTransactionWithCategories(userId, targetBalance.Id, newAmount, *input)
 }
 
 func (s *TransactionService) UpdateTransaction(userId, transactionId int, input *models.Transaction) (models.Transaction, error) {

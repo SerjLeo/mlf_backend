@@ -4,6 +4,7 @@ import "errors"
 
 type Account struct {
 	Id        int    `json:"id" db:"account_id"`
+	UserId    int    `json:"-" db:"user_id"`
 	Name      string `json:"name" db:"name"`
 	Suspended bool   `json:"-" db:"suspended"`
 	IsDefault bool   `json:"-" db:"is_default"`
@@ -13,6 +14,7 @@ type Account struct {
 
 type AccountWithBalances struct {
 	Id        int       `json:"id" db:"account_id"`
+	UserId    int       `json:"-" db:"user_id"`
 	Name      string    `json:"name" db:"name"`
 	Suspended bool      `json:"-" db:"suspended"`
 	IsDefault bool      `json:"-" db:"is_default"`

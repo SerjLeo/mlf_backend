@@ -18,7 +18,7 @@ type UserRepo interface {
 
 type TransactionRepo interface {
 	CreateTransaction(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
-	CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (*models.Transaction, error)
+	CreateTransactionWithCategories(userId, balanceId int, newAmount float64, input models.CreateTransactionInput) (*models.Transaction, error)
 	UpdateTransaction(userId, transactionId int, input models.Transaction) (models.Transaction, error)
 	DeleteTransaction(userId, transactionId int) error
 	GetTransactions(userId int) ([]models.Transaction, error)
@@ -32,7 +32,7 @@ type CategoryRepo interface {
 	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
 	GetUserCategoryById(userId, categoryId int) (*models.Category, error)
 	CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error)
-	UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error)
+	UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) error
 	DeleteCategory(userId, categoryId int) error
 }
 
@@ -60,6 +60,8 @@ type ProfileRepo interface {
 type BalanceRepo interface {
 	GetAccountBalances(userId, accountId int) (*[]models.Balance, error)
 	CreateBalance(userId, accountId, currencyId int) (int, error)
+	GetBalanceById(userId, balanceId int) (*models.Balance, error)
+	GetBalanceByCurrencyAndAccount(userId, currencyId, accountId int) (*models.Balance, error)
 	GetUserCurrencyBalanceAmount(userId, currencyId int) (*models.BalanceOfCurrency, error)
 	GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error)
 }
@@ -96,6 +98,7 @@ type AppService struct {
 	ProfileService
 	AccountService
 	BalanceService
+	CurrencyService
 }
 
 func NewService(deps ServiceDependencies) *AppService {
@@ -106,5 +109,6 @@ func NewService(deps ServiceDependencies) *AppService {
 		*NewProfileService(deps.Repo),
 		*NewAccountService(deps.Repo),
 		*NewBalanceService(deps.Repo),
+		*NewCurrencyService(deps.Repo),
 	}
 }

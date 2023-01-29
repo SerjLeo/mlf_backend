@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type CategoryPostgres struct {
@@ -53,19 +54,37 @@ func (r *CategoryPostgres) CreateCategory(userId int, input *models.CreateCatego
 	return &category, err
 }
 
-func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error) {
-	query := fmt.Sprintf(`
-		UPDATE %s
-		SET name = $1, color = $2, updated_at = $3
-		WHERE user_id = $4 AND category_id = $5
-		RETURNING *
-	`, categoryTable)
+func (r *CategoryPostgres) UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) error {
+	query := fmt.Sprintf(`UPDATE %s SET `, categoryTable)
 
-	category := models.Category{}
+	qParts := make([]string, 0, 5)
+	args := make([]interface{}, 0, 5)
+	counter := 1
 
-	row := r.db.QueryRow(query, input.Name, input.Color, input.UpdatedAt, userId, categoryId)
-	err := row.Scan(&category.Id, &category.UserId, &category.Name, &category.Color, &category.CreatedAt, &category.UpdatedAt)
-	return &category, err
+	if input.Name != "" {
+		qParts = append(qParts, fmt.Sprintf("name=$%d", counter))
+		args = append(args, input.Name)
+		counter++
+	}
+
+	if input.Color != "" {
+		qParts = append(qParts, fmt.Sprintf("color=$%d", counter))
+		args = append(args, input.Color)
+		counter++
+	}
+
+	if input.UpdatedAt != "" {
+		qParts = append(qParts, fmt.Sprintf("updated_at=$%d", counter))
+		args = append(args, input.UpdatedAt)
+		counter++
+	}
+
+	args = append(args, userId, categoryId)
+
+	query = query + strings.Join(qParts, ",") + fmt.Sprintf(" WHERE user_id=$%d AND category_id=$%d", counter, counter+1)
+
+	_, err := r.db.Exec(query, args...)
+	return err
 }
 
 func (r *CategoryPostgres) DeleteCategory(userId, categoryId int) error {

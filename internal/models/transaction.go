@@ -18,5 +18,6 @@ type CreateTransactionInput struct {
 	Description     string  `json:"description" db:"description" binding:"max=255"`
 	TransactionType bool    `json:"type" db:"type"`
 	CategoriesIds   []int   `json:"categories,omitempty"`
-	CurrencyId      int     `json:"currency_id,omitempty" db:"currency_id"`
+	CurrencyId      int     `json:"currency_id" binding:"required" db:"currency_id"`
+	AccountId       int     `json:"account_id" binding:"required" db:"currency_id"`
 }

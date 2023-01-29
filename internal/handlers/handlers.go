@@ -49,6 +49,10 @@ type BalanceService interface {
 	GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error)
 }
 
+type CurrencyService interface {
+	GetCurrenciesList() ([]models.Currency, error)
+}
+
 type Service interface {
 	UserService
 	TransactionService
@@ -56,6 +60,7 @@ type Service interface {
 	ProfileService
 	AccountService
 	BalanceService
+	CurrencyService
 }
 
 type Handler interface {

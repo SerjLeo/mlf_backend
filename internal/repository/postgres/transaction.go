@@ -61,7 +61,7 @@ func (r *TransactionPostgres) GetTransactionById(userId, transactionId int) (mod
 	return transaction, err
 }
 
-func (r *TransactionPostgres) CreateTransactionWithCategories(userId int, input models.CreateTransactionInput) (*models.Transaction, error) {
+func (r *TransactionPostgres) CreateTransactionWithCategories(userId, balanceId int, newAmount float64, input models.CreateTransactionInput) (*models.Transaction, error) {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return nil, err

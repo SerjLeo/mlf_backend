@@ -51,6 +51,38 @@ func (r *BalancePostgres) CreateBalance(userId, accountId, currencyId int) (int,
 	return balanceId, nil
 }
 
+func (r *BalancePostgres) GetBalanceById(userId, balanceId int) (*models.Balance, error) {
+	query := fmt.Sprintf(`
+		SELECT bal.balance_id, amount, cur.currency_id, name as currency, bal.created_at as created_at
+		FROM %s AS bal
+         INNER JOIN %s AS cur ON bal.currency_id=cur.currency_id
+         INNER JOIN %s AS acc_bal ON acc_bal.balance_id=bal.balance_id
+		WHERE user_id=$1 AND balance_id=$2
+	`, balanceTable, currencyTable, accountBalanceTable)
+
+	balance := models.Balance{}
+
+	err := r.db.Get(&balance, query, userId, balanceId)
+
+	return &balance, err
+}
+
+func (r *BalancePostgres) GetBalanceByCurrencyAndAccount(userId, currencyId, accountId int) (*models.Balance, error) {
+	query := fmt.Sprintf(`
+		SELECT bal.balance_id, amount, cur.currency_id, name as currency, bal.created_at as created_at
+		FROM %s AS bal
+         INNER JOIN %s AS cur ON bal.currency_id=cur.currency_id
+         INNER JOIN %s AS acc_bal ON acc_bal.balance_id=bal.balance_id
+		WHERE user_id=$1 AND account_id=$2 AND currency_id=$3
+	`, balanceTable, currencyTable, accountBalanceTable)
+
+	balance := models.Balance{}
+
+	err := r.db.Get(&balance, query, userId, accountId, currencyId)
+
+	return &balance, err
+}
+
 func (r *BalancePostgres) GetAccountBalances(userId, accountId int) (*[]models.Balance, error) {
 	query := fmt.Sprintf(`
 		SELECT bal.balance_id, amount, cur.currency_id, name as currency, bal.created_at as created_at

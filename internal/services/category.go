@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/pkg/colors"
-	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -33,13 +32,12 @@ func (s *CategoryService) CreateCategory(userId int, input *models.CreateCategor
 }
 
 func (s *CategoryService) UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error) {
-	oldCategory, err := s.GetUserCategoryById(userId, categoryId)
+	input.UpdatedAt = time.Now().Format(time.RFC3339)
+	err := s.repo.CategoryRepo.UpdateCategory(userId, categoryId, input)
 	if err != nil {
 		return nil, err
 	}
-	mergo.Merge(&input, oldCategory)
-	input.UpdatedAt = time.Now().Format(time.RFC3339)
-	return s.repo.CategoryRepo.UpdateCategory(userId, categoryId, input)
+	return s.GetUserCategoryById(userId, categoryId)
 }
 
 func (s *CategoryService) DeleteCategory(userId, categoryId int) error {
