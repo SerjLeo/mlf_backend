@@ -26,14 +26,31 @@ type TransactionService interface {
 
 type CategoryService interface {
 	GetUserCategories(userId int, pagination models.PaginationParams) ([]models.Category, error)
-	GetUserCategoryById(userId, categoryId int) (models.Category, error)
-	CreateCategory(userId int, input models.CreateCategoryInput) (models.Category, error)
-	UpdateCategory(userId, categoryId int, input models.Category) (models.Category, error)
+	GetUserCategoryById(userId, categoryId int) (*models.Category, error)
+	CreateCategory(userId int, input *models.CreateCategoryInput) (*models.Category, error)
+	UpdateCategory(userId, categoryId int, input *models.UpdateCategoryInput) (*models.Category, error)
 	DeleteCategory(userId, categoryId int) error
 }
 
 type ProfileService interface {
 	GetUserProfile(userId int) (*models.FullProfile, error)
+	UpdateProfile(input *models.UpdateProfileInput, userId int) (*models.FullProfile, error)
+}
+
+type AccountService interface {
+	CreateAccount(input *models.CreateAccountInput, userId int) (*models.AccountWithBalances, error)
+	GetAccounts(pagination models.PaginationParams, userId int) ([]models.AccountWithBalances, error)
+	SoftDeleteAccount(accountId, userId int) error
+	GetAccountById(accountId, userId int) (*models.AccountWithBalances, error)
+	UpdateAccount(accountId, userId int, input *models.UpdateAccountInput) (*models.AccountWithBalances, error)
+}
+
+type BalanceService interface {
+	GetUserBalancesAmount(userId int) ([]models.BalanceOfCurrency, error)
+}
+
+type CurrencyService interface {
+	GetCurrenciesList() ([]models.Currency, error)
 }
 
 type Service interface {
@@ -41,6 +58,9 @@ type Service interface {
 	TransactionService
 	CategoryService
 	ProfileService
+	AccountService
+	BalanceService
+	CurrencyService
 }
 
 type Handler interface {

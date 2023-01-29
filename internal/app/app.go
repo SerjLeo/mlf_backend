@@ -63,6 +63,7 @@ func Run(configPath string) {
 
 	repos := repository.NewPostgresRepository(db)
 	service := services.NewService(services.ServiceDependencies{
+		Env:             cfg.Env,
 		Repo:            repos,
 		TokenManager:    tokenManager,
 		HashGenerator:   password.NewSHA1Hash(cfg.HashSalt),
@@ -71,7 +72,7 @@ func Run(configPath string) {
 		TemplateManager: templateManager,
 		ColorManager:    colors.NewColorWorker(),
 	})
-	var handler handlers.Handler = http_1_1.NewRequestHandler(service)
+	var handler handlers.Handler = http_1_1.NewRequestHandler(service, cfg.Env)
 
 	server := models.NewServer(cfg.HTTP.Port, handler.InitRoutes())
 

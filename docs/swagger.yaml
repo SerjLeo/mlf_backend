@@ -1,18 +1,5 @@
 basePath: /api
 definitions:
-  http_1_1.dataResponse:
-    properties:
-      data: {}
-    type: object
-  http_1_1.dataWithPaginationResponse:
-    type: object
-  http_1_1.errorResponse:
-    properties:
-      error:
-        type: string
-    type: object
-  http_1_1.metaParams:
-    type: object
   http_1_1.SignInInput:
     properties:
       email:
@@ -30,11 +17,36 @@ definitions:
       name:
         type: string
       password:
+        minLength: 6
         type: string
     required:
     - email
     - name
     - password
+    type: object
+  http_1_1.dataResponse:
+    properties:
+      data: {}
+    type: object
+  http_1_1.dataWithPaginationResponse:
+    properties:
+      data: {}
+      meta:
+        $ref: '#/definitions/http_1_1.metaParams'
+    type: object
+  http_1_1.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  http_1_1.metaParams:
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
     type: object
   http_1_1.signUpWithEmailInput:
     properties:
@@ -45,18 +57,17 @@ definitions:
     type: object
   models.Category:
     properties:
-      category_id:
-        type: integer
       color:
         type: string
       created_at:
         type: string
+      id:
+        type: integer
       name:
+        maxLength: 255
         type: string
       updated_at:
         type: string
-      user_id:
-        type: integer
     type: object
   models.CreateCategoryInput:
     properties:
@@ -67,7 +78,25 @@ definitions:
     required:
     - name
     type: object
-host: localhost:8000
+  models.CreateTransactionInput:
+    properties:
+      amount:
+        type: number
+      categories:
+        items:
+          type: integer
+        type: array
+      currency_id:
+        type: integer
+      description:
+        maxLength: 255
+        type: string
+      type:
+        type: boolean
+    required:
+    - amount
+    type: object
+host: localhost:9001
 info:
   contact: {}
   description: API for MLF application
@@ -76,6 +105,37 @@ info:
   title: My Local Financier API
   version: "1.0"
 paths:
+  /auth/check:
+    get:
+      consumes:
+      - application/json
+      description: check token and return info if correct
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      summary: Check user token and return user info
+      tags:
+      - auth
   /auth/sign-in:
     post:
       consumes:
@@ -387,6 +447,185 @@ paths:
       summary: Update existing category
       tags:
       - category
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: get existing user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user's profile
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: update profile fields
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      summary: Update user's profile
+      tags:
+      - profile
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: returns transactions list with pagination
+      parameters:
+      - description: pagination params and filters
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/http_1_1.metaParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataWithPaginationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get transactions list
+      tags:
+      - transaction
+    post:
+      consumes:
+      - application/json
+      description: creates new transaction and returns it
+      parameters:
+      - description: created transaction fields
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTransactionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create new transaction
+      tags:
+      - transaction
+  /transactions/{transactionId}:
+    get:
+      consumes:
+      - application/json
+      description: returns user's transaction object by id
+      parameters:
+      - description: target transaction id
+        in: path
+        name: categoryId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http_1_1.dataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/http_1_1.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get transaction by id
+      tags:
+      - transaction
 securityDefinitions:
   ApiKeyAuth:
     in: header

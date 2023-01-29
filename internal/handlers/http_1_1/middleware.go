@@ -2,8 +2,8 @@ package http_1_1
 
 import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 )
@@ -14,63 +14,63 @@ const (
 	paginationCtx       = "pagination"
 )
 
-func (h *HTTPRequestHandler) isUserAuthenticated(c *gin.Context) {
-	header := c.GetHeader(authorizationHeader)
+func (h *HTTPRequestHandler) isUserAuthenticated(ctx *gin.Context) {
+	header := ctx.GetHeader(authorizationHeader)
 	if header == "" {
-		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
+		newErrorResponse(ctx, http.StatusUnauthorized, custom_errors.Unauthorized)
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		newErrorResponse(c, http.StatusUnauthorized, "wrong auth header format")
+		newErrorResponse(ctx, http.StatusUnauthorized, custom_errors.Unauthorized)
 		return
 	}
 
 	userId, err := h.services.CheckUserToken(headerParts[1])
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	c.Set(userCtx, userId)
+	ctx.Set(userCtx, userId)
 }
 
-func (h *HTTPRequestHandler) getUserId(c *gin.Context) (int, error) {
-	stringId, exists := c.Get(userCtx)
+func (h *HTTPRequestHandler) getUserId(ctx *gin.Context) (int, error) {
+	stringId, exists := ctx.Get(userCtx)
 	if !exists {
-		return 0, errors.New("user id doesn't provided")
+		return 0, custom_errors.Unauthorized
 	}
 
 	intId, ok := stringId.(int)
 	if !ok {
-		return 0, errors.New("wrong user id format")
+		return 0, custom_errors.Unauthorized
 	}
 
 	return intId, nil
 }
 
-func (h *HTTPRequestHandler) withPagination(c *gin.Context) {
+func (h *HTTPRequestHandler) withPagination(ctx *gin.Context) {
 	paginationParams := models.PaginationParams{}
 
-	err := c.BindQuery(&paginationParams)
+	err := ctx.BindQuery(&paginationParams)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, errors.Wrap(err, "Bad pagination params").Error())
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.PaginationParsingError)
 		return
 	}
 
-	c.Set(paginationCtx, paginationParams)
+	ctx.Set(paginationCtx, paginationParams)
 }
 
-func (h *HTTPRequestHandler) getPagination(c *gin.Context) (models.PaginationParams, error) {
-	pagination, exists := c.Get(paginationCtx)
+func (h *HTTPRequestHandler) getPagination(ctx *gin.Context) (models.PaginationParams, error) {
+	pagination, exists := ctx.Get(paginationCtx)
 	if !exists {
-		return models.PaginationParams{}, errors.New("pagination doesn't provided")
+		return models.PaginationParams{}, nil
 	}
 
 	params, ok := pagination.(models.PaginationParams)
 	if !ok {
-		return models.PaginationParams{}, errors.New("Something wrong with pagination")
+		return models.PaginationParams{}, custom_errors.PaginationParsingError
 	}
 
 	return params, nil

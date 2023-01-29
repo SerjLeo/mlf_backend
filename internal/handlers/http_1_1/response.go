@@ -18,15 +18,9 @@ type metaParams struct {
 }
 
 type errorResponse struct {
-	Error string
+	Error string `json:"error"`
 }
 
-type userResponse struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Currency string `json:"currency"`
-}
-
-func newErrorResponse(c *gin.Context, statusCode int, message string) {
-	c.AbortWithStatusJSON(statusCode, errorResponse{message})
+func newErrorResponse(ctx *gin.Context, statusCode int, err error) {
+	ctx.AbortWithStatusJSON(statusCode, errorResponse{err.Error()})
 }

@@ -3,6 +3,7 @@ package postgres
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/jmoiron/sqlx"
 	"strings"
 )
@@ -24,7 +25,7 @@ func (r *CurrencyPostgres) GetCurrencyById(currencyId int) (models.Currency, err
 
 	err := r.db.Get(&currency, query, currencyId)
 	if err != nil && strings.Contains(err.Error(), "no rows") {
-		return currency, models.CurrencyNotFound
+		return currency, custom_errors.CurrencyNotFound
 	}
 
 	return currency, err

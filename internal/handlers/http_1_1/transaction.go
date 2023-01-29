@@ -3,6 +3,7 @@ package http_1_1
 import (
 	"fmt"
 	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -28,25 +29,26 @@ func (h *HTTPRequestHandler) initTransactionsRoutes(api *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param input body metaParams false "pagination params and filters"
+// @Param payload body metaParams false "pagination params and filters"
 // @Success 200 {object} dataWithPaginationResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [get]
-func (h *HTTPRequestHandler) getTransactionsList(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) getTransactionsList(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	transactions, err := h.services.GetTransactions(userId)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transactions list:", err.Error()))
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	transactions, err := h.services.GetTransactions(userId)
+	if err != nil {
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting transactions list"))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transactions,
 	})
 }
@@ -63,32 +65,32 @@ func (h *HTTPRequestHandler) getTransactionsList(c *gin.Context) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions/{transactionId} [get]
-func (h *HTTPRequestHandler) getTransactionById(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) getTransactionById(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	transactionId := c.Param("id")
+	transactionId := ctx.Param("id")
 	if transactionId == "" {
-		newErrorResponse(c, http.StatusBadRequest, "transaction id is not provided")
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.TransactionIdNotProvided)
 		return
 	}
 
 	transId, err := strconv.Atoi(transactionId)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	transaction, err := h.services.GetTransactionById(userId, transId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting transaction:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting transaction"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
@@ -99,23 +101,23 @@ func (h *HTTPRequestHandler) getTransactionById(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param input body models.CreateTransactionInput true "created transaction fields"
+// @Param payload body models.CreateTransactionInput true "created transaction fields"
 // @Success 200 {object} dataResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /transactions [post]
-func (h *HTTPRequestHandler) createTransaction(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) createTransaction(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	var input models.CreateTransactionInput
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create").Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid data for create"))
 		return
 	}
 
@@ -123,125 +125,125 @@ func (h *HTTPRequestHandler) createTransaction(c *gin.Context) {
 
 	transaction, err := h.services.CreateTransaction(userId, &input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while creating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while creating transaction"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
 
-func (h *HTTPRequestHandler) updateTransaction(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) updateTransaction(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	var input models.Transaction
 
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, custom_errors.BadInput)
 		return
 	}
 
 	transaction, err := h.services.UpdateTransaction(userId, transactionId, &input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error while updating transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while updating transaction"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transaction,
 	})
 }
 
-func (h *HTTPRequestHandler) deleteTransaction(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) deleteTransaction(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
 	if err := h.services.DeleteTransaction(userId, transactionId); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while deleting transaction: ", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while deleting category"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: transactionId,
 	})
 }
 
-func (h *HTTPRequestHandler) attachCategories(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) attachCategories(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id"))
 		return
 	}
 
 	err = h.services.AttachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while attach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while attach category"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: true,
 	})
 }
 
-func (h *HTTPRequestHandler) detachCategories(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) detachCategories(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
-	transactionId, err := strconv.Atoi(c.Param("id"))
+	transactionId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid transaction id"))
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("category_id"))
+	categoryId, err := strconv.Atoi(ctx.Param("category_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, errors.Wrap(err, "invalid category id").Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, errors.Wrap(err, "invalid category id"))
 		return
 	}
 
 	err = h.services.DetachCategory(userId, transactionId, categoryId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("error while detach category:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while detach category"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: true,
 	})
 }

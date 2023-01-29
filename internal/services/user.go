@@ -6,7 +6,6 @@ import (
 	"github.com/SerjLeo/mlf_backend/internal/models"
 	"github.com/SerjLeo/mlf_backend/pkg/auth"
 	"github.com/SerjLeo/mlf_backend/pkg/cache"
-	"github.com/SerjLeo/mlf_backend/pkg/email"
 	"github.com/SerjLeo/mlf_backend/pkg/password"
 	"github.com/SerjLeo/mlf_backend/pkg/templates"
 	generatePassword "github.com/sethvargo/go-password/password"
@@ -17,20 +16,23 @@ type UserService struct {
 	repo            *Repository
 	tokenManager    auth.TokenManager
 	hashGenerator   password.HashGenerator
-	mailManager     email.MailManager
+	mailManager     MailManager
 	templateManager templates.TemplateManager
 	cache           *cache.Cache
+	env             string
 }
 
 func NewUserService(
 	repo *Repository,
 	tokenManager auth.TokenManager,
 	hashGenerator password.HashGenerator,
-	mailManager email.MailManager,
+	mailManager MailManager,
 	templateManager templates.TemplateManager,
 	cache *cache.Cache,
+	env string,
 ) *UserService {
 	return &UserService{
+		env:             env,
 		repo:            repo,
 		tokenManager:    tokenManager,
 		hashGenerator:   hashGenerator,
@@ -53,6 +55,19 @@ func (s *UserService) Create(input *models.CreateUserInput) (string, error) {
 	}
 
 	//Here we should send confirmation email
+	if s.env == "local" {
+		return s.tokenManager.GenerateToken(id, time.Hour*60)
+	}
+
+	err = s.mailManager.SendEmail(
+		input.Email,
+		"",
+		"",
+	)
+
+	if err != nil {
+		return "", err
+	}
 
 	return s.tokenManager.GenerateToken(id, time.Hour*60)
 }
@@ -78,8 +93,27 @@ func (s *UserService) CreateUserByEmail(email string) (string, error) {
 		return "", err
 	}
 
+	_, err = s.repo.ProfileRepo.CreateProfile(id, input.Name)
+	if err != nil {
+		return "", err
+	}
+
 	//Here we should send confirmation + pass via email
 	fmt.Println(pass)
+
+	if s.env == "local" {
+		return s.tokenManager.GenerateToken(id, time.Hour*60)
+	}
+
+	err = s.mailManager.SendEmail(
+		input.Email,
+		"",
+		"",
+	)
+
+	if err != nil {
+		return "", err
+	}
 
 	return s.tokenManager.GenerateToken(id, time.Hour*60)
 }
@@ -104,6 +138,11 @@ func (s *UserService) CheckUserToken(token string) (int, error) {
 		return 0, err
 	}
 
+	_, err = s.repo.GetUserById(claims.UserId)
+	if err != nil {
+		return 0, err
+	}
+
 	return claims.UserId, nil
 }
 
@@ -118,9 +157,9 @@ func (s *UserService) SendTestEmail() error {
 		return err
 	}
 
-	return s.mailManager.SendEmail(email.SendInput{
-		To:      "sergejleontev111@gmail.com",
-		Subject: "Email from mail manager",
-		Body:    body,
-	})
+	return s.mailManager.SendEmail(
+		"sergejleontev111@gmail.com",
+		"Email from mail manager",
+		body,
+	)
 }

@@ -14,5 +14,6 @@ func NewPostgresRepository(db *sqlx.DB) *services.Repository {
 		CurrencyRepo:    postgres.NewCurrencyPostgres(db),
 		AccountRepo:     postgres.NewAccountPostgres(db),
 		ProfileRepo:     postgres.NewProfilePostgres(db),
+		BalanceRepo:     postgres.NewBalancePostgres(db),
 	}
 }

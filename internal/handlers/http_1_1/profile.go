@@ -2,15 +2,18 @@ package http_1_1
 
 import (
 	"fmt"
+	"github.com/SerjLeo/mlf_backend/internal/models"
+	"github.com/SerjLeo/mlf_backend/internal/models/custom_errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 )
 
 func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
-	auth := api.Group("/profile")
+	profile := api.Group("/profile", h.isUserAuthenticated)
 	{
-		auth.GET("", h.getProfile)
-		auth.POST("", h.editProfile)
+		profile.GET("", h.getProfile)
+		profile.PUT("", h.editProfile)
 	}
 }
 
@@ -25,24 +28,56 @@ func (h *HTTPRequestHandler) initProfileRoutes(api *gin.RouterGroup) {
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /profile [get]
-func (h *HTTPRequestHandler) getProfile(c *gin.Context) {
-	userId, err := h.getUserId(c)
+func (h *HTTPRequestHandler) getProfile(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
 		return
 	}
 
 	profile, err := h.services.GetUserProfile(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprint("Error getting profile:", err.Error()))
+		newErrorResponse(ctx, http.StatusInternalServerError, errors.Wrap(err, "error while getting profile"))
 		return
 	}
 
-	c.JSON(http.StatusOK, dataResponse{
+	ctx.JSON(http.StatusOK, dataResponse{
 		Data: profile,
 	})
 }
 
-func (h *HTTPRequestHandler) editProfile(c *gin.Context) {
+// @Summary Update user's profile
+// @Tags profile
+// @Description update profile fields
+// @Accept json
+// @Produce json
+// @Success 200 {object} dataResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /profile [put]
+func (h *HTTPRequestHandler) editProfile(ctx *gin.Context) {
+	userId, err := h.getUserId(ctx)
+	if err != nil {
+		newErrorResponse(ctx, http.StatusUnauthorized, err)
+		return
+	}
 
+	input := &models.UpdateProfileInput{}
+	if err = ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, http.StatusBadRequest, custom_errors.BadInput)
+		return
+	}
+
+	fmt.Printf("%+v \n", input)
+
+	profile, err := h.services.UpdateProfile(input, userId)
+	if err != nil {
+		newErrorResponse(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dataResponse{
+		Data: profile,
+	})
 }

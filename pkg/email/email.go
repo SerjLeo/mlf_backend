@@ -18,10 +18,6 @@ type SendInput struct {
 	Subject string
 }
 
-type MailManager interface {
-	SendEmail(input SendInput) error
-}
-
 func IsEmailValid(email string) bool {
 	if len(email) < minEmailLen || len(email) > maxEmailLen {
 		return false
